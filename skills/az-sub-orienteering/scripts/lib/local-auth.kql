@@ -1,0 +1,23 @@
+// Services that still accept key/SAS/password auth alongside Entra ID.
+// Scope comes from the request body, not this text.
+resources
+| where type in~ (
+    "microsoft.servicebus/namespaces",
+    "microsoft.eventhub/namespaces",
+    "microsoft.documentdb/databaseaccounts",
+    "microsoft.cognitiveservices/accounts",
+    "microsoft.appconfiguration/configurationstores",
+    "microsoft.storage/storageaccounts",
+    "microsoft.containerregistry/registries",
+    "microsoft.cache/redis",
+    "microsoft.dbforpostgresql/flexibleservers",
+    "microsoft.sql/servers")
+| extend localAuth = case(
+    type =~ "microsoft.storage/storageaccounts", iff(tobool(properties.allowSharedKeyAccess) == false, "disabled", "enabled (shared key)"),
+    type =~ "microsoft.containerregistry/registries", iff(tobool(properties.adminUserEnabled) == true, "enabled (admin user)", "disabled"),
+    type =~ "microsoft.cache/redis", iff(tostring(properties.disableAccessKeyAuthentication) =~ "true", "disabled", "enabled (access keys)"),
+    type =~ "microsoft.dbforpostgresql/flexibleservers", iff(tostring(properties.authConfig.passwordAuth) =~ "Disabled", "disabled", "enabled (password)"),
+    type =~ "microsoft.sql/servers", iff(tobool(properties.administrators.azureADOnlyAuthentication) == true, "disabled", "enabled (SQL login)"),
+    iff(tobool(properties.disableLocalAuth) == true, "disabled", "enabled (keys)"))
+| project type, name, resourceGroup, localAuth
+| order by localAuth desc, type asc, name asc

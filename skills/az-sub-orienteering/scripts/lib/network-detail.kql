@@ -1,0 +1,11 @@
+// Network types whose CLI list commands are resource-group scoped, and whose
+// properties `az resource list` does not expand. Resource Graph returns both in
+// one call. Scope comes from the request body, not this text.
+resources
+| where type in~ (
+    "microsoft.network/routeTables",
+    "microsoft.network/virtualNetworkGateways",
+    "microsoft.network/localNetworkGateways",
+    "microsoft.network/connections")
+| project type, name, resourceGroup, location, properties
+| order by type asc, name asc

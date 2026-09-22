@@ -1,0 +1,32 @@
+# Resource types checked for diagnostic settings by the observability module.
+# One type per line; lines starting with # are ignored. Case-insensitive.
+Microsoft.App/managedEnvironments
+Microsoft.ApiManagement/service
+Microsoft.Cache/redis
+Microsoft.Cdn/profiles
+Microsoft.CognitiveServices/accounts
+Microsoft.ContainerRegistry/registries
+Microsoft.ContainerService/managedClusters
+Microsoft.DBforMySQL/flexibleServers
+Microsoft.DBforPostgreSQL/flexibleServers
+Microsoft.DocumentDB/databaseAccounts
+Microsoft.EventGrid/topics
+Microsoft.EventGrid/systemTopics
+Microsoft.EventHub/namespaces
+Microsoft.KeyVault/vaults
+Microsoft.Network/applicationGateways
+Microsoft.Network/azureFirewalls
+Microsoft.Network/bastionHosts
+Microsoft.Network/frontDoors
+Microsoft.Network/loadBalancers
+Microsoft.Network/networkSecurityGroups
+Microsoft.Network/publicIPAddresses
+Microsoft.Network/virtualNetworkGateways
+Microsoft.Network/virtualNetworks
+Microsoft.OperationalInsights/workspaces
+Microsoft.RecoveryServices/vaults
+Microsoft.ServiceBus/namespaces
+Microsoft.Sql/servers/databases
+Microsoft.Storage/storageAccounts
+Microsoft.Web/serverfarms
+Microsoft.Web/sites

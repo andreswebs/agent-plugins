@@ -1,0 +1,11 @@
+// Resources whose minimum TLS version is below 1.2, or unset where the
+// platform default is permissive. Scope comes from the request body.
+resources
+| extend tls = tostring(coalesce(
+    properties.minimumTlsVersion,
+    properties.minimalTlsVersion,
+    properties.siteConfig.minTlsVersion))
+| where isnotempty(tls)
+| where tls !in~ ("TLS1_2", "1.2", "TLS1_3", "1.3")
+| project type, name, resourceGroup, tls
+| order by type asc, name asc

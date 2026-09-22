@@ -1,0 +1,17 @@
+// PaaS resources that accept traffic from the public internet at the control
+// plane setting level. Scope comes from the request body, not this text.
+resources
+| extend pna = tostring(coalesce(
+    properties.publicNetworkAccess,
+    properties.networkAcls.defaultAction,
+    properties.network.publicNetworkAccess))
+| extend blobPublic = tobool(properties.allowBlobPublicAccess)
+| extend anonymousPull = tobool(properties.anonymousPullEnabled)
+| extend signal = case(
+    blobPublic == true, "allowBlobPublicAccess=true",
+    anonymousPull == true, "anonymousPullEnabled=true",
+    pna =~ "Enabled" or pna =~ "Allow", strcat("publicNetworkAccess=", pna),
+    "")
+| where signal != ""
+| project type, name, resourceGroup, location, signal
+| order by type asc, name asc

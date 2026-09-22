@@ -1,0 +1,12 @@
+// Container Apps without the containerapp CLI extension.
+resources
+| where type =~ "microsoft.app/containerapps"
+| extend env = tostring(split(properties.environmentId, "/")[-1])
+| extend external = tostring(properties.configuration.ingress.external)
+| extend port = tostring(properties.configuration.ingress.targetPort)
+| extend minReplicas = tostring(properties.template.scale.minReplicas)
+| extend maxReplicas = tostring(properties.template.scale.maxReplicas)
+| extend images = strcat_array(properties.template.containers, ",")
+| extend identityType = tostring(identity.type)
+| project name, resourceGroup, env, external, port, minReplicas, maxReplicas, identityType
+| order by resourceGroup asc, name asc
