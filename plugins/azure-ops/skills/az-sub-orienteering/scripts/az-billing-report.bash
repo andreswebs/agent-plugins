@@ -120,7 +120,7 @@ write_body() {
 collect_rows() {
     local body_file="${1}" rows_file="${2}"
     shift 2
-    local pair label sub
+    local pair label sub token
     local resp="${tmp_workspace}/response.json"
     : >"${rows_file}"
     for pair in "${@}"; do
@@ -129,7 +129,13 @@ collect_rows() {
         [[ "${label}" != "${pair}" ]] || die "malformed BILLING_SUBS entry: '${pair}' (expected label=subscription-id)"
         [[ "${sub}" =~ ^[0-9a-fA-F-]{36}$ ]] || die "not a subscription id in BILLING_SUBS entry '${pair}'"
         echo_stderr "querying ${label} ..."
-        if cm_query "${ARM_TOKEN}" "${sub}" "${body_file}" "${resp}" \
+        # A token per subscription, because each may be linked to a different
+        # account in the same login.
+        if ! token="$(cm_token "${sub}")" || [[ -z "${token}" ]]; then
+            echo_stderr "  ${label}: Not retrieved: could not acquire an access token (az login for the account that owns it?)"
+            continue
+        fi
+        if cm_query "${token}" "${sub}" "${body_file}" "${resp}" \
             "${tmp_workspace}/${label}" echo_stderr_indented; then
             jq --compact-output --arg label "${label}" \
                 '(.properties.rows // [])[] | {sub:$label, service:.[1], cost:.[0], currency:.[2]}' \
@@ -247,11 +253,6 @@ main() {
     local body_file="${tmp_workspace}/body.json"
     local rows_file="${tmp_workspace}/rows.jsonl"
 
-    # One token for the run: ARM tokens outlive a report, and re-fetching per
-    # subscription would add its own throttling surface.
-    ARM_TOKEN="$(cm_token)" || die "could not acquire an ARM access token (az login?)"
-    [[ -n "${ARM_TOKEN}" ]] || die "empty ARM access token"
-
     write_body "${body_file}"
     collect_rows "${body_file}" "${rows_file}" "${subs[@]}"
 
@@ -274,9 +275,6 @@ main() {
     echo_stderr "wrote: ${csv_file}"
     cat "${md_file}"
 }
-
-# Set in main(), read by query_sub(). Declared here so `set -u` never trips.
-ARM_TOKEN=""
 
 if [[ "${BASH_SOURCE[0]:-${0}}" == "${0}" ]]; then
     # Scratch dir, removed by the EXIT trap. Initialised here so

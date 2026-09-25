@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "andreswebs",
+  "description": "Agent plugins by Andre Silva, packaged for Claude Code and the Agent Plugins format",
+  "owner": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "plugins": [
+    {
+      "name": "azure-ops",
+      "source": "./plugins/azure-ops",
+      "description": "Skills and MCP servers for operating Azure subscriptions",
+      "category": "cloud"
+    }
+  ]
+}

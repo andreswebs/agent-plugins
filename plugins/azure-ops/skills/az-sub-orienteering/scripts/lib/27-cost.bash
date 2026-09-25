@@ -42,7 +42,7 @@ function module_27_cost() {
 
     emit "Retail (pay-as-you-go) rates from the Cost Management query API; reservations, savings plans and partner pricing are not reflected."
 
-    if ! COST_TOKEN="$(cm_token 2>/dev/null)" || [ -z "${COST_TOKEN}" ]; then
+    if ! COST_TOKEN="$(cm_token "${AZSD_SUBSCRIPTION_ID}" 2>/dev/null)" || [ -z "${COST_TOKEN}" ]; then
         emit ""
         emit "_(no cost data: could not acquire an access token for the management API)_"
         return 0

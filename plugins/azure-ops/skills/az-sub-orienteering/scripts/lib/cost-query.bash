@@ -39,8 +39,12 @@ CM_LAST_OUTCOME=""
 CM_LAST_STATUS=""
 CM_LAST_DETAIL=""
 
+# Takes the subscription so az picks the account linked to it: a login can hold
+# several accounts, and the default one may have no access to this subscription.
 cm_token() {
-    az account get-access-token --resource "https://management.azure.com" \
+    local subscription="${1}"
+    az account get-access-token --subscription "${subscription}" \
+        --resource "https://management.azure.com" \
         --query accessToken --output tsv
 }
 

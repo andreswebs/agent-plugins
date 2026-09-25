@@ -13,6 +13,8 @@ read-only.
 
 ## Steps
 
+Script paths below are relative to this skill's directory.
+
 1. **Aim.** Resolve the target subscription id: the argument, else
    `AZURE_SUBSCRIPTION_ID`, else ask. Confirm the session reaches it:
 
@@ -26,7 +28,7 @@ read-only.
 2. **Sweep.**
 
    ```sh
-   .claude/skills/az-sub-orienteering/scripts/az-sub-discovery.bash --subscription "${SUBSCRIPTION_ID}"
+   scripts/az-sub-discovery.bash --subscription "${SUBSCRIPTION_ID}"
    ```
 
    Output lands in `.local/tmp/az-sub-discovery/${SUBSCRIPTION_ID}/` at the
@@ -134,7 +136,7 @@ One run per subscription, one output dir each, then compare `summary.md` files:
 
 ```sh
 for sub in $(az account list --query "[].id" --output tsv); do
-    .claude/skills/az-sub-orienteering/scripts/az-sub-discovery.bash --subscription "${sub}" || true
+    scripts/az-sub-discovery.bash --subscription "${sub}" || true
 done
 ```
 
@@ -142,7 +144,7 @@ Or over a labelled list such as `BILLING_SUBS` (`label=id` pairs):
 
 ```sh
 for pair in ${BILLING_SUBS}; do
-    .claude/skills/az-sub-orienteering/scripts/az-sub-discovery.bash --subscription "${pair#*=}" || true
+    scripts/az-sub-discovery.bash --subscription "${pair#*=}" || true
 done
 ```
 
@@ -155,8 +157,8 @@ cost or when comparing several sweeps; it is not part of a sweep.
 
 ```sh
 export BILLING_SUBS="prod=${PROD_SUBSCRIPTION_ID} dev=${DEV_SUBSCRIPTION_ID}"
-.claude/skills/az-sub-orienteering/scripts/az-billing-report.bash            # month to date
-.claude/skills/az-sub-orienteering/scripts/az-billing-report.bash 2026-08    # one calendar month
+scripts/az-billing-report.bash            # month to date
+scripts/az-billing-report.bash 2026-08    # one calendar month
 ```
 
 Output: `billing-report-<period>.md` and `.csv` in `BILLING_OUT_DIR`, default

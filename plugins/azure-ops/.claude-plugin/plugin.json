@@ -1,6 +1,7 @@
 {
-  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "azure-ops",
+  "displayName": "Azure Ops",
   "version": "0.1.0",
   "description": "Skills and MCP servers for operating Azure subscriptions",
   "author": {
@@ -10,5 +11,6 @@
   "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/azure-ops",
   "repository": "https://github.com/andreswebs/agent-plugins",
   "license": "MIT",
-  "keywords": ["azure", "cloud", "operations"]
+  "keywords": ["azure", "cloud", "operations"],
+  "mcpServers": "./mcp.json"
 }
