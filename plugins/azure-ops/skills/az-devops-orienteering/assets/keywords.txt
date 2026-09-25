@@ -1,0 +1,43 @@
+# Default Boards search terms: infrastructure, delivery and migration.
+# Matched with WIQL CONTAINS WORDS against title and description.
+# Add engagement names (servers, databases, applications) with --keywords FILE.
+SSIS
+SSRS
+ETL
+IIS
+SQL Agent
+linked server
+DACPAC
+backup
+restore
+refresh
+certificate
+DNS
+VPN
+firewall
+file share
+Azure
+migration
+migrate
+cloud
+server
+upgrade
+patch
+outage
+incident
+password
+credential
+secret
+token
+deployment
+release
+hotfix
+preprod
+UAT
+scraper
+FTP
+API
+Power BI
+Data Factory
+report server
+cost

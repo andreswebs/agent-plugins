@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "azure-ops",
-  "version": "0.1.0",
-  "description": "Skills and MCP servers for operating Azure subscriptions",
+  "version": "0.2.0",
+  "description": "Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations",
   "author": {
     "name": "Andre Silva",
     "email": "andreswebs@pm.me"
@@ -10,5 +10,5 @@
   "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/azure-ops",
   "repository": "https://github.com/andreswebs/agent-plugins",
   "license": "MIT",
-  "keywords": ["azure", "cloud", "operations"]
+  "keywords": ["azure", "azure-devops", "cloud", "operations"]
 }

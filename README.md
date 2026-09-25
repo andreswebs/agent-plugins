@@ -7,9 +7,9 @@ that implements the Agent Plugins format.
 
 ## Plugins
 
-| Plugin                          | Description                                              |
-| ------------------------------- | -------------------------------------------------------- |
-| [azure-ops](plugins/azure-ops/) | Skills and MCP servers for operating Azure subscriptions |
+| Plugin                          | Description                                                                             |
+| ------------------------------- | --------------------------------------------------------------------------------------- |
+| [azure-ops](plugins/azure-ops/) | Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations |
 
 ## Install
 

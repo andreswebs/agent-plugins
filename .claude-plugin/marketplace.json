@@ -10,7 +10,7 @@
     {
       "name": "azure-ops",
       "source": "./plugins/azure-ops",
-      "description": "Skills and MCP servers for operating Azure subscriptions",
+      "description": "Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations",
       "category": "cloud"
     }
   ]

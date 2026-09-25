@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "azure-ops",
   "displayName": "Azure Ops",
-  "version": "0.1.0",
-  "description": "Skills and MCP servers for operating Azure subscriptions",
+  "version": "0.2.0",
+  "description": "Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations",
   "author": {
     "name": "Andre Silva",
     "email": "andreswebs@pm.me"
@@ -11,6 +11,6 @@
   "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/azure-ops",
   "repository": "https://github.com/andreswebs/agent-plugins",
   "license": "MIT",
-  "keywords": ["azure", "cloud", "operations"],
+  "keywords": ["azure", "azure-devops", "cloud", "operations"],
   "mcpServers": "./mcp.json"
 }

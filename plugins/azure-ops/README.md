@@ -1,17 +1,19 @@
 # azure-ops
 
-Skills and MCP servers for operating Azure subscriptions: map an unfamiliar
-subscription and rank what to look at first, estimate costs from public retail
-prices, and look things up in Microsoft Learn.
+Skills and MCP servers for operating Azure subscriptions and Azure DevOps
+organisations: map an unfamiliar subscription or Azure DevOps organisation and
+rank what to look at first, estimate costs from public retail prices, and look
+things up in Microsoft Learn.
 
 ## Skills
 
 | Skill | What it does | Claude Code |
 | --- | --- | --- |
 | `az-sub-orienteering` | Read-only sweep of a subscription you did not build: inventory, identity, exposure, network, governance, cost and more, then a ranked triage of the findings | `/azure-ops:az-sub-orienteering` |
+| `az-devops-orienteering` | Read-only sweep of an Azure DevOps organisation you did not build: access, people and administrators, hidden projects, repository review controls, pipeline history and agents, boards and in-flight work, then a ranked triage | `/azure-ops:az-devops-orienteering` |
 | `azure-pricing` | Queries the public Azure Retail Prices API for cost estimates and pricing comparisons | `/azure-ops:azure-pricing` |
 
-Both skills also load on their own when a request matches their description.
+Every skill also loads on its own when a request matches its description.
 
 ## MCP servers
 
@@ -26,6 +28,11 @@ Both skills also load on their own when a request matches their description.
   read-only. The skill's `references/permissions.md` describes the
   least-privilege role a sweep needs, and `assets/` holds a self-contained
   Terraform configuration that provisions it.
+- `az-devops-orienteering`: Azure CLI with a session that can read the
+  organisation, or a PAT in `AZURE_DEVOPS_EXT_PAT`, and `uv`. Every call is
+  read-only. The skill's `references/permissions.md` lists what each module
+  needs, and `references/identity.md` how to keep the Azure DevOps sign-in
+  separate from Azure.
 - `azure-pricing`: `curl` and `jq`. The API is public and needs no login.
 
 ## Compatibility
