@@ -313,6 +313,7 @@ function main() {
 
     resolve_subscription || exit 1
     resolve_output_dir || exit 1
+    resolve_provenance
 
     trap 'shutdown SIGINT' SIGINT
     trap 'shutdown SIGTERM' SIGTERM

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "azure-ops",
   "displayName": "Azure Ops",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations",
   "author": {
     "name": "Andre Silva",

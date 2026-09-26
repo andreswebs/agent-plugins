@@ -39,6 +39,8 @@ no create/delete/update/set/start/stop verb appears anywhere in the scripts.
 | `ai`            | `Microsoft.CognitiveServices` accounts and deployments, `Microsoft.MachineLearningServices`, `Microsoft.Search`                                                                                 |
 | `edge`          | `Microsoft.Network` application gateways and WAF policies, `Microsoft.Cdn`, `Microsoft.ApiManagement`                                                                                           |
 | `backup`        | `Microsoft.RecoveryServices` vaults and protected items                                                                                                                                         |
+| `sqlvm`         | `Microsoft.SqlVirtualMachine` SQL VMs and groups, plus Resource Graph for VMs built from a SQL Server image                                                                                      |
+| (every run)     | The caller's own role assignments, for the provenance block in `summary.md`; covered by `Microsoft.Authorization/roleAssignments/read`                                                          |
 
 ### Three endpoints that are not ordinary resource reads
 
@@ -75,7 +77,7 @@ no account key is ever needed and `listKeys` stays out of the role.
 Built from `*/read` on the providers above, plus the Cost Management action.
 
 Every action string below was checked against the live catalogue, glob-matched
-against the full operation list for all 33 namespaces:
+against the full operation list for all 34 namespaces:
 
 ```sh
 az provider operation show --namespace "${NAMESPACE}" --output json |
@@ -144,7 +146,9 @@ matter: Azure matches action strings case-insensitively.
     "Microsoft.Cdn/profiles/read",
     "Microsoft.ApiManagement/service/read",
     "Microsoft.RecoveryServices/vaults/read",
-    "Microsoft.RecoveryServices/vaults/backupProtectedItems/read"
+    "Microsoft.RecoveryServices/vaults/backupProtectedItems/read",
+    "Microsoft.SqlVirtualMachine/sqlVirtualMachines/read",
+    "Microsoft.SqlVirtualMachine/sqlVirtualMachineGroups/read"
   ],
   "NotActions": [
     "Microsoft.Storage/storageAccounts/listKeys/action",
@@ -243,29 +247,32 @@ nothing else.
    the test depends on; reusing an existing principal proves nothing.
 2. Run the full sweep as that principal against a subscription known to contain
    a broad mix of resource types.
-3. **Inspect `raw/**/\*.json.err`, not just the exit code.** The suite is
-designed to continue past a failed call, writing `[]`and a sibling`.err`,
-so a run can complete "18 of 18" with modules that read nothing. Every `.err`
-   is either a missing permission or a tooling defect, and the two must be told
-   apart before anything is added to the role.
+3. **Read "Calls that failed" in `summary.md`, not just the exit code.** The
+   suite continues past a failed call, so a run can complete "19 of 19" with
+   modules that read nothing. That table groups every `.err` under `raw/` by
+   module and cause. Each is either a missing permission or a tooling defect,
+   and the two must be told apart before anything is added to the role.
 4. Compare report-by-report against a run by a principal with Reader, to find
    sections that silently emptied.
 
 ## Known traps when reading the results
 
-Three observed cases where a failure was reported as a finding. All three were
-misleading in the same direction — they made an absence of access look like an
-absence of risk.
+Three observed cases where a failure was reported as a finding, all misleading
+in the same direction: they made an absence of access look like an absence of
+risk. All three are fixed, and the fixes are the reason for the suite's current
+failure handling.
 
 - **A throttled Cost Management call rendered as "the caller may lack Cost
   Management Reader, or the subscription is billed through a channel that hides
-  cost".** Both explanations were wrong; a billing run minutes later returned
-  the figures. A 429 is not a permissions answer.
+  cost".** A billing run minutes later returned the figures. The cost module
+  now tells `empty`, `throttled`, `denied` and `error` apart.
 - **A failed route-table call rendered as "none found".** The command errored on
-  a missing argument, and the report presented the result as an empty estate.
+  a missing argument. Every table helper now checks for a `.err` first and
+  prints "could not read" with the cause.
 - **An unregistered resource provider rendered as "The specified subscription
   does not exist".** The subscription existed and every other module read it.
+  The cause is now worded as an unregistered provider, which is itself evidence
+  that the service was never used there.
 
-The rule the suite already states, worth repeating because it is easy to skip:
-a `.json.err` beside a data-plane call is a fact about the caller, not about the
+A `.json.err` beside a data-plane call is a fact about the caller, not about the
 resource. Report it as "could not read", never as "none".

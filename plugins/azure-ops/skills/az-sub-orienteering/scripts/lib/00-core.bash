@@ -23,6 +23,13 @@ AZSD_MODULE=""
 AZSD_RAW_DIR=""
 AZSD_REPORT_FILE=""
 
+AZSD_RUN_STARTED=""
+AZSD_TOOL_VERSION="unknown"
+AZSD_TENANT_ID="unknown"
+AZSD_SUBSCRIPTION_NAME="unknown"
+AZSD_CALLER_TYPE="unknown"
+AZSD_CALLER_OID="unknown"
+
 # ---------------------------------------------------------------------------
 # logging (stderr only)
 
@@ -155,6 +162,126 @@ function arg_query() {
 }
 
 # ---------------------------------------------------------------------------
+# provenance
+
+# Who ran the sweep, against what, with which build. The caller is recorded as
+# principal type and Entra object id, never a user principal name: reports get
+# copied one by one into other repositories, and a UPN is an email address.
+# The object id comes from the ARM token's own claims, so no Graph permission
+# is needed. The token is decoded in a pipe and never written anywhere.
+function resolve_provenance() {
+    AZSD_RUN_STARTED="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+    local manifest="${AZSD_SCRIPT_DIR:-}/../../../plugin.json"
+    if [ -r "${manifest}" ]; then
+        AZSD_TOOL_VERSION="$(jq --raw-output '.version // "unknown"' "${manifest}" 2>/dev/null || echo unknown)"
+    fi
+
+    local account
+    if account="$(az account show --subscription "${AZSD_SUBSCRIPTION_ID}" --only-show-errors \
+        --query "{name:name, tenant:tenantId, type:user.type}" --output json 2>/dev/null)"; then
+        AZSD_SUBSCRIPTION_NAME="$(jq --raw-output '.name // "unknown"' <<<"${account}")"
+        AZSD_TENANT_ID="$(jq --raw-output '.tenant // "unknown"' <<<"${account}")"
+        AZSD_CALLER_TYPE="$(jq --raw-output '.type // "unknown"' <<<"${account}")"
+    else
+        log_warn "provenance: az account show failed; subscription name and tenant unknown"
+    fi
+
+    local claims
+    if claims="$(az account get-access-token --subscription "${AZSD_SUBSCRIPTION_ID}" --only-show-errors \
+        --resource "https://management.azure.com" --query accessToken --output tsv 2>/dev/null |
+        jq --raw-input --from-file "${AZSD_LIB_DIR}/token-claims.jq" 2>/dev/null)"; then
+        AZSD_CALLER_OID="$(jq --raw-output '.oid // "unknown"' <<<"${claims}")"
+        case "$(jq --raw-output '.idtyp // ""' <<<"${claims}")" in
+        app) AZSD_CALLER_TYPE="servicePrincipal" ;;
+        user) AZSD_CALLER_TYPE="user" ;;
+        esac
+    else
+        log_warn "provenance: could not read the caller's object id from the token"
+    fi
+
+    local run_dir="${AZSD_OUTPUT_DIR}/raw/_run"
+    rm -rf -- "${run_dir}"
+    mkdir -p "${run_dir}"
+    if is_guid "${AZSD_CALLER_OID}"; then
+        az_json role assignment list --assignee-object-id "${AZSD_CALLER_OID}" --include-inherited --all \
+            --query "[].{role:roleDefinitionName, scope:scope}" >"${run_dir}/caller-roles.json" 2>"${run_dir}/caller-roles.json.err" &&
+            rm -f "${run_dir}/caller-roles.json.err"
+    fi
+    return 0
+}
+
+# One line for every report header, so a report copied on its own still says
+# where it came from.
+function provenance_line() {
+    # shellcheck disable=SC2016  # literal markdown backticks
+    printf 'az-sub-orienteering %s · tenant `%s` · caller %s `%s`' \
+        "${AZSD_TOOL_VERSION}" "${AZSD_TENANT_ID}" "${AZSD_CALLER_TYPE}" "${AZSD_CALLER_OID}"
+}
+
+# ---------------------------------------------------------------------------
+# failed calls
+
+# Print the .err file recording why FILE could not be fetched, if there is one.
+# arg_query leaves its error beside the response file, not the data file.
+function call_error_file() {
+    local file="${1}"
+    local candidate
+    for candidate in "${file}.err" "${file%.json}.response.json.err"; do
+        if [ -e "${candidate}" ]; then
+            echo "${candidate}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# One-line cause for a failed call, worded as a fact about the caller or the
+# subscription, never about the resource. The CLI's own wording misleads in
+# at least one case: a call to an unregistered resource provider answers "The
+# specified subscription does not exist" about a subscription it can read.
+function describe_failure() {
+    local err="${1}"
+    if [ ! -s "${err}" ]; then
+        printf 'no response within %ss, or the call failed without an error message' "${AZSD_AZ_TIMEOUT}"
+        return 0
+    fi
+    if grep --quiet --ignore-case --extended-regexp \
+        'MissingSubscriptionRegistration|SubscriptionNotRegistered|Subscription Not Registered|not registered to use namespace|specified subscription .* does not exist' "${err}"; then
+        printf 'resource provider not registered in this subscription, so the service has never been used here (the subscription itself exists)'
+    elif grep --quiet --ignore-case --extended-regexp \
+        'AuthorizationFailed|AuthorizationPermissionMismatch|Forbidden|\(403\)|does not have authorization|insufficient privileges' "${err}"; then
+        printf "access denied: the caller's roles do not cover this call"
+    elif grep --quiet --ignore-case --extended-regexp '\(429\)|TooManyRequests|throttl' "${err}"; then
+        printf 'throttled by the API; the data may well exist'
+    else
+        printf 'error: %s' "$(grep --max-count 1 --extended-regexp '^(ERROR|Message):' "${err}" |
+            sed -e 's/^[A-Za-z]*: *//' -e 's/[`|]/ /g' | cut -c1-200)"
+    fi
+}
+
+# Count of FILE's items, or a could-not-read note. A failed call leaves "[]",
+# which json_count alone would report as a confident zero.
+function count_or_unread() {
+    local file="${1}"
+    local err
+    if err="$(call_error_file "${file}")"; then
+        printf '_could not read: %s_' "$(describe_failure "${err}")"
+        return 0
+    fi
+    json_count "${file}"
+}
+
+# Emit a could-not-read note and succeed when FILE's call failed; fail otherwise.
+function emit_if_unread() {
+    local file="${1}"
+    local err
+    err="$(call_error_file "${file}")" || return 1
+    emit "_(could not read: $(describe_failure "${err}"))_"
+    return 0
+}
+
+# ---------------------------------------------------------------------------
 # json helpers
 
 function json_count() {
@@ -245,14 +372,33 @@ function module_setup() {
     mkdir -p "${AZSD_RAW_DIR}"
 }
 
+# Move FILE to history/<its Generated timestamp>/REL before it is rewritten, so
+# a re-run never destroys the earlier result and the two can be diffed. A file
+# without a Generated line (written before the header existed) is stamped with
+# its modification time.
+function archive_previous() {
+    local file="${1}"
+    local rel="${2}"
+    [ -f "${file}" ] || return 0
+    local stamp
+    stamp="$(sed -n 's/^- \*\*Generated:\*\* //p' "${file}" | head -1)"
+    [ -n "${stamp}" ] || stamp="$(date -u -r "${file}" +"%Y-%m-%dT%H:%M:%SZ")"
+    stamp="${stamp//:/}"
+    local dest="${AZSD_OUTPUT_DIR}/history/${stamp}/${rel}"
+    mkdir -p "$(dirname "${dest}")"
+    mv -f -- "${file}" "${dest}"
+}
+
 function report_begin() {
     local title="${1}"
+    archive_previous "${AZSD_REPORT_FILE}" "reports/${AZSD_MODULE}.md"
     {
         echo "# ${title}"
         echo
         echo "- **Module:** \`${AZSD_MODULE}\`"
-        echo "- **Subscription:** \`${AZSD_SUBSCRIPTION_ID}\`"
+        echo "- **Subscription:** \`${AZSD_SUBSCRIPTION_ID}\` (${AZSD_SUBSCRIPTION_NAME})"
         echo "- **Generated:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+        echo "- **Provenance:** $(provenance_line)"
         echo "- **Raw JSON:** \`raw/${AZSD_MODULE}/\`"
     } >"${AZSD_REPORT_FILE}"
 }
@@ -275,6 +421,7 @@ function emit_subsection() {
 
 function emit_json_file() {
     local file="${1}"
+    emit_if_unread "${file}" && return 0
     if [ "$(json_count "${file}")" = "0" ]; then
         emit "_(none)_"
         return 0
@@ -298,6 +445,7 @@ function emit_table() {
     local header="${2}"
     local filter="${3}"
     shift 3
+    emit_if_unread "${file}" && return 0
     if [ "$(json_count "${file}")" = "0" ]; then
         emit "_(none found)_"
         return 0
@@ -315,6 +463,7 @@ function emit_table_from() {
     local header="${2}"
     local program="${AZSD_LIB_DIR}/${3}"
     shift 3
+    emit_if_unread "${file}" && return 0
     if [ "$(json_count "${file}")" = "0" ]; then
         emit "_(none found)_"
         return 0
@@ -363,6 +512,25 @@ function record_full_sweep() {
         "${AZSD_DONE_COUNT}" "${AZSD_TOTAL_COUNT}" >"${AZSD_OUTPUT_DIR}/.last-full-sweep"
 }
 
+# Every failed call on disk, grouped by module and cause. Without this a
+# refused call is visible only as a note deep in one report, and the summary
+# reads as though every module saw everything.
+function summarise_failed_calls() {
+    local raw="${AZSD_OUTPUT_DIR}/raw"
+    local err module call cause
+    while IFS= read -r err; do
+        [ -z "${err}" ] && continue
+        module="$(basename "$(dirname "${err}")")"
+        [ "${module}" = "_run" ] && module="provenance"
+        call="$(basename "${err}")"
+        call="${call%.json.err}"
+        call="${call%.response}"
+        cause="$(describe_failure "${err}")"
+        printf '%s\t%s\t%s\n' "${module}" "${cause}" "${call}"
+    done < <(find "${raw}" -name '*.err' -type f 2>/dev/null | sort) |
+        jq --raw-input --slurp --from-file "${AZSD_LIB_DIR}/failed-calls.jq"
+}
+
 function write_summary() {
     local failed=("${@}")
     local summary="${AZSD_OUTPUT_DIR}/summary.md"
@@ -374,6 +542,7 @@ function write_summary() {
     [ -n "${AZSD_SKIP:-}" ] && filter="${filter:+${filter} }--skip ${AZSD_SKIP}"
 
     record_full_sweep "${#failed[@]}"
+    archive_previous "${summary}" "summary.md"
 
     local last_full=""
     [ -r "${AZSD_OUTPUT_DIR}/.last-full-sweep" ] &&
@@ -401,10 +570,38 @@ function write_summary() {
         if [ "${#failed[@]}" -gt 0 ]; then
             echo "- **Failed modules:** ${failed[*]}"
         fi
+        echo "- **Earlier versions:** \`history/<Generated>/\`, one folder per replaced report or summary"
+        echo
+        echo "## Provenance"
+        echo
+        echo "| Field | Value |"
+        echo "| --- | --- |"
+        echo "| Tool | az-sub-orienteering ${AZSD_TOOL_VERSION}, read-only |"
+        echo "| Run started | ${AZSD_RUN_STARTED} |"
+        echo "| Tenant | \`${AZSD_TENANT_ID}\` |"
+        echo "| Subscription | \`${AZSD_SUBSCRIPTION_ID}\` (${AZSD_SUBSCRIPTION_NAME}) |"
+        echo "| Caller | ${AZSD_CALLER_TYPE}, object id \`${AZSD_CALLER_OID}\` |"
+        echo
+        echo "Roles the caller holds, directly or inherited from a parent scope; roles"
+        echo "held through group membership are not listed. Everything below is what"
+        echo "this access could see: anything hidden from it is absent, not missing."
+        echo
+    } >"${summary}"
+
+    local roles="${AZSD_OUTPUT_DIR}/raw/_run/caller-roles.json"
+    if [ -e "${roles}" ] || [ -e "${roles}.err" ]; then
+        local AZSD_REPORT_FILE="${summary}"
+        emit_table "${roles}" "Role|Scope" \
+            '.[] | [.role, (.scope | if . == "/" then "tenant root" elif test("/managementGroups/") then "management group " + (split("/") | last) elif test("^/subscriptions/[^/]+$") then "subscription" elif test("/resourceGroups/[^/]+$"; "i") then "resource group " + (split("/") | last) else "resource " + (split("/") | last) end)]'
+    else
+        echo "_(not read: the caller's object id is unknown)_" >>"${summary}"
+    fi
+
+    {
         echo
         echo "## Reports"
         echo
-    } >"${summary}"
+    } >>"${summary}"
 
     local report base generated
     while IFS= read -r report; do
@@ -416,6 +613,21 @@ function write_summary() {
 
     {
         echo
+        echo "## Calls that failed"
+        echo
+        echo "Each is a gap in what the reports show, never evidence that nothing is there."
+        echo
+    } >>"${summary}"
+    local failed_rows
+    failed_rows="$(summarise_failed_calls)"
+    if [ "$(jq 'length' <<<"${failed_rows}")" = "0" ]; then
+        echo "_(none: every call returned)_" >>"${summary}"
+    else
+        render_table "Module|Cause|Calls|Examples" <<<"${failed_rows}" >>"${summary}"
+    fi
+
+    {
+        echo
         echo "## Resource types with no dedicated module"
         echo
         echo "Observed in the inventory but not inspected in depth by any module. Unexplored territory: look here next."
@@ -424,11 +636,24 @@ function write_summary() {
 
     if [ ! -s "${inv}" ]; then
         echo "_(inventory missing)_" >>"${summary}"
-        return 0
+    else
+        local covered_file="${AZSD_OUTPUT_DIR}/raw/inventory/covered-types.txt"
+        covered_types >"${covered_file}"
+        jq --rawfile covered "${covered_file}" --from-file "${AZSD_LIB_DIR}/uncovered-types.jq" "${inv}" |
+            render_table "Resource type|Count" >>"${summary}"
     fi
 
-    local covered_file="${AZSD_OUTPUT_DIR}/raw/inventory/covered-types.txt"
-    covered_types >"${covered_file}"
-    jq --rawfile covered "${covered_file}" --from-file "${AZSD_LIB_DIR}/uncovered-types.jq" "${inv}" |
-        render_table "Resource type|Count" >>"${summary}"
+    {
+        echo
+        echo "## Outside this sweep"
+        echo
+        echo "A control-plane read. It does not reach, and no report here speaks to:"
+        echo
+        echo "- **Anything inside a virtual machine**: SQL Agent jobs, linked servers, SSIS"
+        echo "  packages, SSRS, IIS sites, file shares, scheduled tasks, local accounts."
+        echo "- **Azure DevOps**: repositories, pipelines, agents, service connections. It is"
+        echo "  not an Azure resource provider, so nothing here reveals the delivery chain."
+        echo "- **Key Vault contents and blob data**, unless the caller also holds data-plane"
+        echo "  roles; see the failed calls above."
+    } >>"${summary}"
 }

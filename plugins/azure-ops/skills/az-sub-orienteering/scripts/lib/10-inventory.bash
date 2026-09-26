@@ -43,8 +43,8 @@ function module_10_inventory() {
     total="$(json_count "${AZSD_RAW_DIR}/all-resources.json")"
     emit_section "Totals"
     emit "- **Resources:** ${total}"
-    emit "- **Resource groups:** $(json_count "${AZSD_RAW_DIR}/resource-groups.json")"
-    emit "- **Registered resource providers:** $(json_count "${AZSD_RAW_DIR}/providers.json")"
+    emit "- **Resource groups:** $(count_or_unread "${AZSD_RAW_DIR}/resource-groups.json")"
+    emit "- **Registered resource providers:** $(count_or_unread "${AZSD_RAW_DIR}/providers.json")"
     emit "- **CSV export:** \`raw/inventory/all-resources.csv\`"
 
     jq --raw-output --from-file "${AZSD_LIB_DIR}/inventory-csv.jq" "${AZSD_RAW_DIR}/all-resources.json" \

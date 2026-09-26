@@ -26,10 +26,7 @@ function module_31_storage() {
     while IFS=$'\t' read -r acc _rg _rid; do
         [ -z "${acc}" ] && continue
         emit_subsection "${acc}"
-        if ! run_az_json "containers-${acc}" storage container list --account-name "${acc}" --auth-mode login; then
-            emit "_(could not list; see raw/${AZSD_MODULE}/containers-${acc}.json.err)_"
-            continue
-        fi
+        run_az_json "containers-${acc}" storage container list --account-name "${acc}" --auth-mode login || true
         emit_table "${AZSD_RAW_DIR}/containers-${acc}.json" "Container|Public access|Legal hold|Immutability|Last modified" \
             '.[] | [.name, (.properties.publicAccess // "none"), (.properties.hasLegalHold // false), (.properties.hasImmutabilityPolicy // false), (.properties.lastModified // "-")]'
     done < <(inventory_of_type "Microsoft.Storage/storageAccounts")

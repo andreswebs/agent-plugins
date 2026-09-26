@@ -12,9 +12,9 @@ function module_20_identity() {
     run_az_json uamis identity list || true
 
     emit_section "Counts"
-    emit "- **Role assignments (direct + inherited):** $(json_count "${AZSD_RAW_DIR}/role-assignments.json")"
-    emit "- **Custom role definitions visible at this scope:** $(json_count "${AZSD_RAW_DIR}/custom-roles.json")"
-    emit "- **User-assigned managed identities:** $(json_count "${AZSD_RAW_DIR}/uamis.json")"
+    emit "- **Role assignments (direct + inherited):** $(count_or_unread "${AZSD_RAW_DIR}/role-assignments.json")"
+    emit "- **Custom role definitions visible at this scope:** $(count_or_unread "${AZSD_RAW_DIR}/custom-roles.json")"
+    emit "- **User-assigned managed identities:** $(count_or_unread "${AZSD_RAW_DIR}/uamis.json")"
 
     emit_section "Assignments by principal type"
     emit_group_count "${AZSD_RAW_DIR}/role-assignments.json" "Principal type|Count" "principalType"

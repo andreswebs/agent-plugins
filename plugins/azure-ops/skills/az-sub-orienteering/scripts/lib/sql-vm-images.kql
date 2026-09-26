@@ -1,0 +1,10 @@
+resources
+| where type =~ "microsoft.compute/virtualmachines"
+| extend publisher = tostring(properties.storageProfile.imageReference.publisher)
+| where publisher =~ "MicrosoftSQLServer"
+| project id = tolower(id),
+    name,
+    resourceGroup,
+    offer = tostring(properties.storageProfile.imageReference.offer),
+    sku = tostring(properties.storageProfile.imageReference.sku),
+    powerState = tostring(properties.extended.instanceView.powerState.code)

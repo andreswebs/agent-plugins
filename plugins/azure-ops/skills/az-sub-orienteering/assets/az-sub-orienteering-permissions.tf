@@ -275,6 +275,9 @@ resource "azurerm_role_definition" "sweep" {
 
       "Microsoft.RecoveryServices/vaults/read",
       "Microsoft.RecoveryServices/vaults/backupProtectedItems/read",
+
+      "Microsoft.SqlVirtualMachine/sqlVirtualMachines/read",
+      "Microsoft.SqlVirtualMachine/sqlVirtualMachineGroups/read",
     ]
 
     # listKeys hands over every byte in the account, and the wildcard reads

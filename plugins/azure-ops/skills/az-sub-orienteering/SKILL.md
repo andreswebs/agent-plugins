@@ -11,6 +11,13 @@ Orienteering: a map good enough to prioritise with, before any depth. The sweep
 builds the map; the triage guide turns it into a ranked route. Every call is
 read-only.
 
+The map covers the Azure control plane and nothing else. It never reaches inside
+a virtual machine (SQL Agent jobs, SSIS, SSRS, IIS, file shares, local
+accounts), and it never sees Azure DevOps, which is not an Azure resource
+provider; `az-devops-orienteering` maps that. Say so wherever a sweep is
+presented as an inventory of an estate, because on a lift-and-shift estate that
+is where the workload lives.
+
 ## Steps
 
 Script paths below are relative to this skill's directory.
@@ -42,7 +49,9 @@ Script paths below are relative to this skill's directory.
 
    **Reading a summary after a partial run.** An output directory accumulates
    reports across runs, so `summary.md` describes _the last invocation_, not the
-   state of the whole directory. A filtered run (`--only` or `--skip`) says so
+   state of the whole directory. A re-run never destroys a report: the previous
+   version moves to `history/<its Generated time>/` first, so the two can be
+   diffed. A filtered run (`--only` or `--skip`) says so
    in place of the completed count, names the filter, and reports when the last
    unfiltered sweep finished — every report in the list carries its own
    `Generated` timestamp, which is the authority. A full run with no failures
@@ -65,8 +74,9 @@ Script paths below are relative to this skill's directory.
    beside them. Done when every finding names its report and table, carries a
    rank, and the unexplored-territory and follow-ups sections are filled.
 
-5. **Report back** in chat: subscription, modules completed, the top three
-   findings with their rank, and the path to `findings.md`.
+5. **Report back** in chat: subscription, modules completed, any failed calls
+   with their cause, the top three findings with their rank, and the path to
+   `findings.md`.
 
 ## Interface
 
@@ -103,6 +113,7 @@ Script paths below are relative to this skill's directory.
 | `ai`            | Cognitive Services and OpenAI deployments, ML workspaces, Search            |
 | `edge`          | Load balancers, App Gateway and WAF, Front Door, APIM                       |
 | `backup`        | Recovery Services and Backup vaults, protected items                        |
+| `sqlvm`         | SQL Server on VMs: version, edition, licence, and SQL images not registered |
 
 Service modules print `_(no resources of type ...)_` and return immediately
 when the inventory holds none of their types.
@@ -111,24 +122,34 @@ when the inventory holds none of their types.
 
 ```text
 <output-dir>/
-  summary.md            index of reports + resource types no module covers
+  summary.md            provenance, reports, failed calls, uncovered types, boundary
   findings.md           written in step 4
   reports/<module>.md   one report per module
+  history/<Generated>/  earlier versions of replaced reports and summaries
   raw/<module>/*.json   every az response; *.json.err beside a failed call
   raw/inventory/all-resources.csv
 ```
 
+Every report header carries a provenance line (tool version, tenant, caller
+type and object id), so a report copied on its own still says where it came
+from. The caller is never named by user principal name. Reports copied into a
+shared record still need redacting where the estate itself holds personal data:
+`identity.md` lists principal names, and firewall rules are often named for
+people.
+
 ## Reading a failure correctly
 
-- A `.json.err` beside a data-plane call (Key Vault objects, blob containers,
-  Log Analytics queries) is a permissions fact about the caller, not an empty
-  resource. Report it as "could not read", never as "none".
-- `defender` reporting `Subscription Not Registered` means Defender for Cloud
-  was never enabled; that is itself a finding.
+A failed call renders in its report as "could not read" with a cause, and the
+summary's "Calls that failed" table lists every one by module. Carry them into
+`findings.md` as blind spots, never as empty results.
+
+- An unregistered resource provider means the service was never used in that
+  subscription: a finding, not a gap. `defender` reporting it means Defender for
+  Cloud was never enabled.
+- A denial on a data-plane call (Key Vault objects, blob containers, Log
+  Analytics queries) is a fact about the caller's roles, not the resource.
 - Resource Graph results are capped at 1000 rows per query; a `truncated`
   warning on stderr means the exposure tables are a lower bound.
-- `cost` returning no data under Reader alone is expected; it needs Cost
-  Management Reader, and some billing channels hide cost at subscription scope.
 
 ## Several subscriptions
 

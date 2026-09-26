@@ -14,9 +14,16 @@ rest supply depth once the map is drawn.
 ### 1. `summary.md`
 
 - Modules completed. Anything short of N of N is a blind spot to state up front.
+- Provenance: the roles the caller holds bound everything else. Reader at one
+  resource group and Owner at the tenant root produce very different maps.
+- Calls that failed: each row is a blind spot, with its cause. An unregistered
+  provider is a finding (the service was never used); a denial or throttle is a
+  gap to state, never an empty result.
 - Resource types with no dedicated module: unexplored territory. Each row is a
   follow-up, and a count out of proportion to the rest of the estate is worth a
   sentence even before it is understood.
+- Outside this sweep: carry it into `findings.md` verbatim. Inside the VMs and
+  Azure DevOps are often where the workload actually lives.
 
 ### 2. `reports/inventory.md`
 
@@ -112,6 +119,11 @@ soft delete and purge protection on vaults, admin user on registries, RBAC vs
 access policies on vaults. A dash in an object-count column means the caller
 could not read, not empty.
 
+`sqlvm`: licence `PAYG` on a server that could use an existing licence is a cost
+lever; an out-of-support version in the image offer is a migration driver; a
+SQL image in the unregistered table is a SQL Server the rest of the sweep
+cannot describe.
+
 ## Ranking
 
 | Rank | Meaning                                                                   |
@@ -133,7 +145,8 @@ signals named.
 # Findings: <subscription name> (<id>)
 
 - Swept: <timestamp from summary.md>; modules completed N of N
-- Blind spots: <failed modules, data-plane reads denied, truncated queries>
+- Blind spots: <failed modules, calls that failed and why, truncated queries,
+  and the summary's "Outside this sweep" list>
 
 ## Shape of the estate
 

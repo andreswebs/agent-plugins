@@ -33,9 +33,9 @@ function module_25_observability() {
         '.[] | [.name, .resourceGroup, .enabled, ((.emailReceivers // []) | map(.emailAddress) | join(", ")), ((.smsReceivers // []) | length), ((.webhookReceivers // []) | length), (((.armRoleReceivers // []) + (.azureFunctionReceivers // []) + (.logicAppReceivers // []) + (.automationRunbookReceivers // [])) | length)]'
 
     emit_section "Alert rules"
-    emit "- **Metric alerts:** $(json_count "${AZSD_RAW_DIR}/metric-alerts.json")"
-    emit "- **Activity log alerts:** $(json_count "${AZSD_RAW_DIR}/activity-alerts.json")"
-    emit "- **Log search alerts:** $(json_count "${AZSD_RAW_DIR}/log-alerts.json")"
+    emit "- **Metric alerts:** $(count_or_unread "${AZSD_RAW_DIR}/metric-alerts.json")"
+    emit "- **Activity log alerts:** $(count_or_unread "${AZSD_RAW_DIR}/activity-alerts.json")"
+    emit "- **Log search alerts:** $(count_or_unread "${AZSD_RAW_DIR}/log-alerts.json")"
     emit ""
     emit_table "${AZSD_RAW_DIR}/metric-alerts.json" "Metric alert|RG|Enabled|Severity|Scopes" \
         '.[] | [.name, .resourceGroup, .enabled, .severity, ((.scopes // []) | map(split("/") | last) | join(", "))]'

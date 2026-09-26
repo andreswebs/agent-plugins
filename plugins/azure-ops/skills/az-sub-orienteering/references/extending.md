@@ -38,7 +38,11 @@ function module_NN_<name>_types() {
 - The `_types` companion lists the resource types the module covers, so the
   summary can report what is uncovered. Omit it for cross-cutting modules.
 - Return 0 unless the module produced no report at all. Individual failed calls
-  are logged by `run_az_json` and leave `[]` plus a `.json.err`.
+  are logged by `run_az_json` and leave `[]` plus a `.json.err`. The `emit_*`
+  table helpers check for that `.err` and print "could not read" with the cause,
+  so render through them; a count printed by hand goes through `count_or_unread`.
+- A new failure message the classifier misreads belongs in `describe_failure` in
+  `00-core.bash`, worded as a fact about the caller or the subscription.
 - Sourced file: no `set -o`, no work at load time, source guard on line one.
 
 ## Helpers available to a module
@@ -53,6 +57,8 @@ function module_NN_<name>_types() {
 | `skip_if_absent TYPE...`                  | Emit a one-liner and return 0 when none present                    |
 | `normalize_list FILE`                     | Unwrap `{value: [...]}` in place                                   |
 | `json_count FILE`                         | Item count, 0 for missing                                          |
+| `count_or_unread FILE`                    | Item count, or "could not read" with the cause when the call failed |
+| `emit_if_unread FILE`                     | Emit the could-not-read note and return 0 when FILE's call failed  |
 | `emit`, `emit_section`, `emit_subsection` | Append to the report                                               |
 | `emit_columns FILE HEADER PATHS`          | Table from dotted paths; HEADER and PATHS are pipe-separated       |
 | `emit_group_count FILE HEADER PATH`       | Count-by table                                                     |

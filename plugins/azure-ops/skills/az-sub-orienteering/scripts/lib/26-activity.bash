@@ -9,7 +9,7 @@ function module_26_activity() {
     run_az_json events monitor activity-log list --offset 30d --max-events 5000 || true
 
     emit_section "Volume"
-    emit "- **Events fetched:** $(json_count "${AZSD_RAW_DIR}/events.json") (capped at 5000)"
+    emit "- **Events fetched:** $(count_or_unread "${AZSD_RAW_DIR}/events.json") (capped at 5000)"
 
     emit_section "Events by caller"
     emit_group_count "${AZSD_RAW_DIR}/events.json" "Caller|Events" "caller"
