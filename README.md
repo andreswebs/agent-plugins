@@ -103,7 +103,8 @@ Run `/reload-plugins` inside the session to pick up edits.
 directories, compares the two manifests of every plugin, validates the
 portable files against the Agent Plugins schemas, and runs
 `claude plugin validate` when Claude Code is installed. It needs `jq` and
-`uv`.
+`uv`. The `ci` workflow runs it on every pull request and every push to
+`main`.
 
 ## Authors
 
