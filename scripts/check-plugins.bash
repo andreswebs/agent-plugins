@@ -86,6 +86,14 @@ function check_catalog() {
         fi
     done <<<"${entries}"
 
+    # Version belongs to the manifests; when both set it, plugin.json silently wins.
+    local versioned
+    versioned=$(jq --raw-output '.plugins[] | select(has("version")) | .name' "${CATALOG}")
+    while read -r name; do
+        [ -z "${name}" ] && continue
+        fail "${name}: catalog entry sets version; set it only in the plugin manifests"
+    done <<<"${versioned}"
+
     local plugin_dir base
     for plugin_dir in "${REPO_ROOT}"/plugins/*/; do
         [ -d "${plugin_dir}" ] || continue
@@ -111,6 +119,8 @@ function check_plugin() {
     fi
     [ "${p_name}" = "${entry_name}" ] ||
         fail "${rel}: portable name '${p_name}' differs from catalog entry '${entry_name}'"
+    [ "${p_name}" = "$(basename "${dir}")" ] ||
+        fail "${rel}: portable name '${p_name}' differs from its directory name"
 
     if [ -f "${claude}" ]; then
         local c_name c_version
