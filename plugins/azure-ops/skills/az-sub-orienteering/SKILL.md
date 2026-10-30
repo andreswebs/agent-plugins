@@ -177,15 +177,26 @@ service, in markdown and CSV. Run it only when the user asks for cross-subscript
 cost or when comparing several sweeps; it is not part of a sweep.
 
 ```sh
+env | grep '^BILLING_'                    # what the project already sets
 export BILLING_SUBS="prod=${PROD_SUBSCRIPTION_ID} dev=${DEV_SUBSCRIPTION_ID}"
 scripts/az-billing-report.bash            # month to date
 scripts/az-billing-report.bash 2026-08    # one calendar month
+BILLING_REPORT_NAME="${REPORT_NAME}" scripts/az-billing-report.bash   # own file name
 ```
 
-Output: `billing-report-<period>.md` and `.csv` in `BILLING_OUT_DIR`, default
-`.local/tmp/az-sub-discovery/billing/`. Retail rates only; reservations and
-partner pricing are not reflected, so totals are for trend and chargeback, never
-for invoice reconciliation. Needs `bc` in addition to `az` and `jq`.
+A workspace `.envrc` often carries `BILLING_SUBS`, `BILLING_OUT_DIR` and
+`BILLING_REPORT_TITLE` already; exporting over them sends the report somewhere
+other than where the earlier ones are. The script runs as the current az login,
+so the Aim step's check applies to every subscription in the list.
+
+Output: a `.md` and a `.csv` in `BILLING_OUT_DIR`, default
+`.local/tmp/az-sub-discovery/billing/`, named `billing-report-<YYYY-MM-DD>-mtd`
+for month to date (the UTC day of the run, so the month's snapshots sit side by
+side) or `billing-report-<YYYY-MM>` for a calendar month. `BILLING_REPORT_NAME`
+replaces the base name; keep a date in it. When the file already exists the
+script stops before querying. Retail rates only; reservations and partner
+pricing are not reflected, so totals are for trend and chargeback, never for
+invoice reconciliation. Needs `bc` in addition to `az` and `jq`.
 
 ## Permissions
 

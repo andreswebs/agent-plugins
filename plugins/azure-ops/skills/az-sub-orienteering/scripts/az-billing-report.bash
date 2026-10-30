@@ -29,8 +29,17 @@
 #                         appended, so the heading reads "<title>: <period>" and
 #                         a report can never be circulated without saying which
 #                         period it covers. Does not affect the output
-#                         filenames, which stay keyed to the period so
-#                         successive runs remain sortable.
+#                         filenames.
+#   BILLING_REPORT_NAME   base name of the output files, without extension;
+#                         ".md" and ".csv" are appended. Default:
+#                         "billing-report-<YYYY-MM-DD>-mtd" for month-to-date,
+#                         dated on the UTC day of generation, so each run keeps
+#                         its own snapshot; "billing-report-<YYYY-MM>" for a
+#                         calendar month, whose content does not change once
+#                         the month has closed.
+#
+# When either output file already exists the run stops before querying
+# anything. Set BILLING_REPORT_NAME, or move the old files aside, to run again.
 
 set -o errexit
 set -o nounset
@@ -92,6 +101,10 @@ current_month() {
     date --utc +%Y-%m 2>/dev/null || date -u +%Y-%m
 }
 
+current_day() {
+    date --utc +%Y-%m-%d 2>/dev/null || date -u +%Y-%m-%d
+}
+
 # Sets the period globals from the CLI argument.
 resolve_period() {
     local period_arg="${1}"
@@ -99,8 +112,10 @@ resolve_period() {
         TIMEFRAME="MonthToDate"
         PERIOD_FROM=""
         PERIOD_TO=""
-        PERIOD_LABEL="month-to-date ($(current_month))"
-        PERIOD_SLUG="$(current_month)-mtd"
+        # The heading carries the day for the same reason the filename does:
+        # a month-to-date figure is a snapshot, and the day is its identity.
+        PERIOD_LABEL="month-to-date to $(current_day)"
+        PERIOD_SLUG="$(current_day)-mtd"
     elif [[ "${period_arg}" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
         TIMEFRAME="Custom"
         PERIOD_FROM="${period_arg}-01T00:00:00Z"
@@ -247,6 +262,19 @@ main() {
     resolve_period "${1:-mtd}"
 
     local out_dir="${BILLING_OUT_DIR:-${PWD}/.local/tmp/az-sub-discovery/billing}"
+    local report_name="${BILLING_REPORT_NAME:-billing-report-${PERIOD_SLUG}}"
+    [[ -n "${report_name}" && "${report_name}" != */* ]] ||
+        die "BILLING_REPORT_NAME must be a file name without a directory: '${report_name}'"
+    local csv_file="${out_dir}/${report_name}.csv"
+    local md_file="${out_dir}/${report_name}.md"
+    # Checked before any query, so a name clash costs nothing against the
+    # Cost Management throttle.
+    local existing
+    for existing in "${md_file}" "${csv_file}"; do
+        [[ ! -e "${existing}" ]] ||
+            die "${existing} already exists; set BILLING_REPORT_NAME or move it aside"
+    done
+
     local subs=()
     read -r -a subs <<<"${BILLING_SUBS}"
 
@@ -265,8 +293,6 @@ main() {
     fi
 
     mkdir --parents "${out_dir}"
-    local csv_file="${out_dir}/billing-report-${PERIOD_SLUG}.csv"
-    local md_file="${out_dir}/billing-report-${PERIOD_SLUG}.md"
 
     write_csv "${rows_file}" "${csv_file}"
     write_markdown "${rows_file}" "${md_file}" "${subs[@]}"
