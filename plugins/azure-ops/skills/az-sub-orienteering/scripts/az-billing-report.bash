@@ -40,6 +40,16 @@
 #
 # When either output file already exists the run stops before querying
 # anything. Set BILLING_REPORT_NAME, or move the old files aside, to run again.
+#
+# A subscription whose cost could not be read (refused, throttled, no token) is
+# listed in the report under "Not retrieved" and in the CSV with its outcome in
+# the status column; every total excludes it and says so. One whose query
+# succeeded with no rows is listed under "No cost recorded".
+#
+# Exit status:
+#   0  every subscription was read
+#   1  nothing could be reported (no rows at all), or a usage error
+#   2  the report was written, but some subscriptions were not retrieved
 
 set -o errexit
 set -o nounset
@@ -57,6 +67,8 @@ source "${SCRIPT_DIR}/lib/cost-query.bash"
 # drift on long decimals). r() rounds half-away-from-zero to 2 decimals and is
 # applied per line item, so displayed rows reconcile with their totals
 # (round-then-sum): grand total == sum of per-sub totals == sum of per-service.
+readonly EXIT_PARTIAL=2
+
 readonly BC_PREAMBLE='scale=2; define r(x){ if (x < 0) return (x - 0.005) / 1; return (x + 0.005) / 1 }'
 
 bc_eval() {
@@ -132,12 +144,22 @@ write_body() {
     cm_body "${TIMEFRAME}" "ServiceName" "${PERIOD_FROM}" "${PERIOD_TO}" >"${body_file}"
 }
 
+# Appends {sub, outcome, explanation} for a subscription that contributed no
+# rows, so the report can say what is missing instead of silently omitting it.
+record_status() {
+    local status_file="${1}" label="${2}" outcome="${3}" explanation="${4}"
+    jq --null-input --compact-output \
+        --arg sub "${label}" --arg outcome "${outcome}" --arg explanation "${explanation}" \
+        '{sub: $sub, outcome: $outcome, explanation: $explanation}' >>"${status_file}"
+}
+
 collect_rows() {
-    local body_file="${1}" rows_file="${2}"
-    shift 2
-    local pair label sub token
+    local body_file="${1}" rows_file="${2}" status_file="${3}"
+    shift 3
+    local pair label sub token explanation
     local resp="${tmp_workspace}/response.json"
     : >"${rows_file}"
+    : >"${status_file}"
     for pair in "${@}"; do
         label="${pair%%=*}"
         sub="${pair##*=}"
@@ -147,7 +169,9 @@ collect_rows() {
         # A token per subscription, because each may be linked to a different
         # account in the same login.
         if ! token="$(cm_token "${sub}")" || [[ -z "${token}" ]]; then
-            echo_stderr "  ${label}: Not retrieved: could not acquire an access token (az login for the account that owns it?)"
+            explanation="Not retrieved: could not acquire an access token (az login for the account that owns it?)"
+            echo_stderr "  ${label}: ${explanation}"
+            record_status "${status_file}" "${label}" "no_token" "${explanation}"
             continue
         fi
         if cm_query "${token}" "${sub}" "${body_file}" "${resp}" \
@@ -158,18 +182,35 @@ collect_rows() {
         else
             # An empty result is a fact about the period, not a failure to
             # report as one; everything else names its own cause.
-            echo_stderr "  ${label}: $(cm_explain)"
+            explanation="$(cm_explain)"
+            echo_stderr "  ${label}: ${explanation}"
+            record_status "${status_file}" "${label}" "${CM_LAST_OUTCOME:-error}" "${explanation}"
         fi
         sleep 3
     done
 }
 
+# Subscriptions without rows get one row each with empty cost cells, so a
+# spreadsheet built from the CSV shows the gap rather than a smaller total.
 write_csv() {
-    local rows_file="${1}" csv_file="${2}"
+    local rows_file="${1}" status_file="${2}" csv_file="${3}"
     {
-        echo "subscription,service,cost,currency"
-        jq --raw-output --slurp '.[] | [.sub, .service, .cost, .currency] | @csv' "${rows_file}"
+        echo "subscription,service,cost,currency,status"
+        jq --raw-output --slurp '.[] | [.sub, .service, .cost, .currency, "ok"] | @csv' "${rows_file}"
+        jq --raw-output --slurp '.[] | [.sub, null, null, null, .outcome] | @csv' "${status_file}"
     } >"${csv_file}"
+}
+
+# Comma-separated labels of the subscriptions that were not retrieved; an
+# empty result is a fact, not a gap, so it is left out.
+not_retrieved_labels() {
+    local status_file="${1}"
+    jq --raw-output --slurp '[.[] | select(.outcome != "empty") | .sub] | join(", ")' "${status_file}"
+}
+
+not_retrieved_count() {
+    local status_file="${1}"
+    jq --raw-output --slurp '[.[] | select(.outcome != "empty")] | length' "${status_file}"
 }
 
 # Renders "| name | 0.00 CUR |" rows sorted by cost descending. The jq program
@@ -189,13 +230,19 @@ emit_cost_table() {
 }
 
 write_markdown() {
-    local rows_file="${1}" md_file="${2}"
-    shift 2
+    local rows_file="${1}" status_file="${2}" md_file="${3}"
+    shift 3
     # jq snippet (over an array of row objects) -> "r(c1)+r(c2)+..." for bc.
     local sum_expr='"r(" + ([.[].cost | tostring] | join(")+r(")) + ")"'
     local by_sub='group_by(.sub)[] | [ .[0].sub, (.[0].currency // ""), ('"${sum_expr}"') ] | @tsv'
     local by_service='group_by(.service)[] | [ .[0].service, (.[0].currency // ""), ('"${sum_expr}"') ] | @tsv'
     local pair label has cost service currency expr cur total value
+    local missing_count missing_labels excludes=""
+    missing_count="$(not_retrieved_count "${status_file}")"
+    missing_labels="$(not_retrieved_labels "${status_file}")"
+    if [[ "${missing_count}" -gt 0 ]]; then
+        excludes="Excludes ${missing_count} subscription(s) not retrieved: ${missing_labels}."
+    fi
     {
         echo "# ${BILLING_REPORT_TITLE:-Azure cost report}: ${PERIOD_LABEL}"
         echo
@@ -207,11 +254,33 @@ write_markdown() {
         echo
         echo "Generated $(date --utc +%FT%TZ 2>/dev/null || date -u +%FT%TZ)."
         echo
+        # Ahead of the totals, so nobody reads them as complete first.
+        if [[ "${missing_count}" -gt 0 ]]; then
+            echo "## Not retrieved"
+            echo
+            echo "The cost of these subscriptions could not be read; every total below excludes them."
+            echo
+            jq --raw-output --slurp \
+                '.[] | select(.outcome != "empty") | "- **\(.sub)**: \(.explanation)"' "${status_file}"
+            echo
+        fi
+        if jq --exit-status --slurp 'any(.[]; .outcome == "empty")' "${status_file}" >/dev/null; then
+            echo "## No cost recorded"
+            echo
+            echo "The query succeeded and returned zero rows for the period:"
+            echo
+            jq --raw-output --slurp '.[] | select(.outcome == "empty") | "- \(.sub)"' "${status_file}"
+            echo
+        fi
         echo "## Total by subscription"
         echo
         echo "| Subscription | Cost |"
         echo "|---|---:|"
         emit_cost_table "${rows_file}" "${by_sub}"
+        if [[ -n "${excludes}" ]]; then
+            echo
+            echo "${excludes}"
+        fi
         echo
         echo "## By service per subscription"
         for pair in "${@}"; do
@@ -246,6 +315,10 @@ write_markdown() {
         cur="$(jq --raw-output --slurp '.[0].currency // ""' "${rows_file}")"
         total="$(bc_eval "${expr}" | awk '{ printf "%.2f", $1 }')"
         printf '**%s %s**\n' "${total}" "${cur}"
+        if [[ -n "${excludes}" ]]; then
+            echo
+            echo "${excludes}"
+        fi
     } >"${md_file}"
 }
 
@@ -280,11 +353,20 @@ main() {
 
     local body_file="${tmp_workspace}/body.json"
     local rows_file="${tmp_workspace}/rows.jsonl"
+    local status_file="${tmp_workspace}/status.jsonl"
 
     write_body "${body_file}"
-    collect_rows "${body_file}" "${rows_file}" "${subs[@]}"
+    collect_rows "${body_file}" "${rows_file}" "${status_file}" "${subs[@]}"
 
-    [[ -s "${rows_file}" ]] || die "no cost rows returned for any subscription in period ${PERIOD_LABEL}"
+    local missing_count missing_labels
+    missing_count="$(not_retrieved_count "${status_file}")"
+    missing_labels="$(not_retrieved_labels "${status_file}")"
+
+    if [[ ! -s "${rows_file}" ]]; then
+        [[ "${missing_count}" -eq 0 ]] ||
+            echo_stderr "warn: ${missing_count} of ${#subs[@]} subscriptions not retrieved: ${missing_labels}"
+        die "no cost rows returned for any subscription in period ${PERIOD_LABEL}"
+    fi
 
     local currencies
     currencies="$(jq --raw-output --slurp '[.[].currency] | unique | join(",")' "${rows_file}")"
@@ -294,12 +376,23 @@ main() {
 
     mkdir --parents "${out_dir}"
 
-    write_csv "${rows_file}" "${csv_file}"
-    write_markdown "${rows_file}" "${md_file}" "${subs[@]}"
+    write_csv "${rows_file}" "${status_file}" "${csv_file}"
+    write_markdown "${rows_file}" "${status_file}" "${md_file}" "${subs[@]}"
 
+    cat "${md_file}"
+
+    # Last on stderr, so a caller that pipes or tails the output still sees
+    # what is missing and where the files went.
+    if [[ "${missing_count}" -gt 0 ]]; then
+        echo_stderr "warn: ${missing_count} of ${#subs[@]} subscriptions not retrieved: ${missing_labels}; the report totals exclude them"
+    fi
+    if [[ -n "${BILLING_OUT_DIR:-}" ]]; then
+        echo_stderr "output directory from BILLING_OUT_DIR: ${out_dir}"
+    fi
     echo_stderr "wrote: ${md_file}"
     echo_stderr "wrote: ${csv_file}"
-    cat "${md_file}"
+
+    [[ "${missing_count}" -eq 0 ]] || exit "${EXIT_PARTIAL}"
 }
 
 if [[ "${BASH_SOURCE[0]:-${0}}" == "${0}" ]]; then

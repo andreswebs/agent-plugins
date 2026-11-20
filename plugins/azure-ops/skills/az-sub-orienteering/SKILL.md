@@ -150,6 +150,10 @@ summary's "Calls that failed" table lists every one by module. Carry them into
   Analytics queries) is a fact about the caller's roles, not the resource.
 - Resource Graph results are capped at 1000 rows per query; a `truncated`
   warning on stderr means the exposure tables are a lower bound.
+- A cost query refused with `SubscriptionCostDisabled` (HTTP 400) is a CSP
+  subscription whose partner has not enabled cost visibility for the customer:
+  a billing-channel fact, not a permissions one. No role grant fixes it; the
+  partner must enable visibility, or read the cost on their side.
 
 ## Several subscriptions
 
@@ -197,6 +201,21 @@ replaces the base name; keep a date in it. When the file already exists the
 script stops before querying. Retail rates only; reservations and partner
 pricing are not reflected, so totals are for trend and chargeback, never for
 invoice reconciliation. Needs `bc` in addition to `az` and `jq`.
+
+A `BILLING_OUT_DIR` exported by a workspace `.envrc` wins over the default, so
+the files can land outside the repository being worked in. The last stderr
+lines name the directory and both files; read them rather than assuming the
+default.
+
+A subscription whose cost could not be read (refused, throttled, no token) is
+listed under "Not retrieved" ahead of the totals, with its cause, and every
+total says it excludes it; in the CSV it gets a row with empty cost cells and
+its outcome in the `status` column (`ok` for rows that were read). A query that
+succeeded with zero rows is listed under "No cost recorded" instead, since that
+is a fact about the period, not a gap. When anything was not retrieved the
+script still writes both files, ends stderr with a summary line, and exits 2;
+it exits 1 without writing when no subscription returned rows. Carry "Not
+retrieved" entries into findings as blind spots, never as zero cost.
 
 ## Permissions
 

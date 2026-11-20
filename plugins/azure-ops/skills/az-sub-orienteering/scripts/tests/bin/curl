@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Stand-in for the Cost Management POST in cm_query: answers with the canned
+# "<id>.status" and "<id>.body" from FAKE_CM_DIR for the subscription in the URL.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+function main() {
+    local out="" hdr="" url=""
+    while [ "${#}" -gt 0 ]; do
+        case "${1}" in
+        --output)
+            out="${2}"
+            shift 2
+            ;;
+        --dump-header)
+            hdr="${2}"
+            shift 2
+            ;;
+        --write-out | --request | --header | --data)
+            shift 2
+            ;;
+        https://*)
+            url="${1}"
+            shift
+            ;;
+        *) shift ;;
+        esac
+    done
+    local sub="${url#*/subscriptions/}"
+    sub="${sub%%/*}"
+    if [ ! -e "${FAKE_CM_DIR}/${sub}.status" ]; then
+        echo "curl: (6) no fixture for ${sub}" >&2
+        return 6
+    fi
+    : >"${hdr}"
+    cp "${FAKE_CM_DIR}/${sub}.body" "${out}"
+    cat "${FAKE_CM_DIR}/${sub}.status"
+}
+
+if [[ "${BASH_SOURCE[0]:-${0}}" == "${0}" ]]; then
+    main "${@}"
+fi

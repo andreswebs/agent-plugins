@@ -33,6 +33,9 @@ CM_CLIENT_TYPE="${CM_CLIENT_TYPE:-p41-az-sub-orienteering}"
 #   ok        the query returned data
 #   throttled every attempt was refused with 429
 #   denied    403/401 — a permissions fact about the caller
+#   cost_disabled
+#             400 SubscriptionCostDisabled, a billing-channel fact: a CSP
+#             partner has not enabled cost visibility for the customer
 #   empty     the query succeeded and the subscription genuinely has no cost
 #   error     anything else; CM_LAST_DETAIL carries the response body
 CM_LAST_OUTCOME=""
@@ -189,7 +192,14 @@ cm_query() {
             return 1
             ;;
         *)
-            CM_LAST_OUTCOME="error"
+            # Matched on the error code, not the status: the service answers 400
+            # for this, which would otherwise read as a malformed request.
+            if jq --exit-status '.error.code == "SubscriptionCostDisabled"' \
+                "${resp_file}" >/dev/null 2>&1; then
+                CM_LAST_OUTCOME="cost_disabled"
+            else
+                CM_LAST_OUTCOME="error"
+            fi
             CM_LAST_DETAIL="HTTP ${status}: $(tr --delete '\n' <"${resp_file}" 2>/dev/null | cut --characters=1-300)"
             return 1
             ;;
@@ -205,6 +215,7 @@ cm_explain() {
     empty) printf 'No cost recorded for this period. The query succeeded and returned zero rows.' ;;
     throttled) printf 'Not retrieved: the Cost Management API rate-limited every attempt. This is a throttling fact, not a permissions or billing-channel one — the cost may well exist.' ;;
     denied) printf 'Not retrieved: access denied (HTTP %s). The caller lacks Cost Management Reader at this scope.' "${CM_LAST_STATUS}" ;;
+    cost_disabled) printf 'Not retrieved: cost visibility is disabled for this subscription (HTTP %s, SubscriptionCostDisabled). This is a CSP (partner-billed) subscription whose partner has not enabled cost visibility for the customer: a billing-channel fact, not a permissions one. The partner must enable it, or read the cost on the partner side.' "${CM_LAST_STATUS}" ;;
     error) printf 'Not retrieved: %s' "${CM_LAST_DETAIL}" ;;
     *) printf 'Not retrieved.' ;;
     esac
