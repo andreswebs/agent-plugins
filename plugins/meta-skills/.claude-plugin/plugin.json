@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "meta-skills",
+  "displayName": "Meta Skills",
+  "version": "0.1.0",
+  "description": "Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/meta-skills",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["skills", "skill-authoring", "testing", "runbooks", "automation"]
+}

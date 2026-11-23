@@ -10,6 +10,7 @@ that implements the Agent Plugins format.
 | Plugin                          | Description                                                                             |
 | ------------------------------- | --------------------------------------------------------------------------------------- |
 | [azure-ops](plugins/azure-ops/) | Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations |
+| [meta-skills](plugins/meta-skills/) | Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks |
 
 ## Install
 

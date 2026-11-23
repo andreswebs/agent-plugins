@@ -12,6 +12,12 @@
       "source": "./plugins/azure-ops",
       "description": "Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations",
       "category": "cloud"
+    },
+    {
+      "name": "meta-skills",
+      "source": "./plugins/meta-skills",
+      "description": "Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks",
+      "category": "development"
     }
   ]
 }

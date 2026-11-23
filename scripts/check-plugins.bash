@@ -168,7 +168,8 @@ function check_plugins() {
         [ -f "${dir}/plugin.json" ] || continue
         total_count=$((total_count + 1))
         echo_stderr "plugin ${name}"
-        if check_plugin "${name}" "${dir}"; then
+        # claude reads stdin, which would swallow the remaining catalog entries.
+        if check_plugin "${name}" "${dir}" </dev/null; then
             passed_count=$((passed_count + 1))
         fi
     done <<<"${entries}"
