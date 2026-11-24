@@ -61,7 +61,12 @@ path. For pi (`@earendil-works/pi-coding-agent`), the equivalent is
 [references/pi.md](references/pi.md) — including the `PI_*` variables that
 remove the need to derive the transcript path at all. For Kiro, it is
 [references/kiro.md](references/kiro.md) — including why the storage bucket
-must be found rather than derived, and how policy can deny a read.
+must be found rather than derived, and how policy can deny a read. For
+Hermes, it is [references/hermes.md](references/hermes.md) — including the
+interpreter split that makes `pip show` unreliable there (`$HERMES_PYTHON` is
+the runtime, the `python3` on `PATH` may not be), the storage map under
+`${HERMES_HOME}`, and a one-pass probe script that prints the whole
+environment with guarded commands.
 
 When the harness has no reference here, derive one in three moves, and write
 it up per step 6 so the next agent inherits it. Identify the vendor from the
@@ -97,6 +102,13 @@ Pairings that have each caught a real error:
 
 Where a second witness is unavailable, say so in the answer rather than
 promoting a single reading to fact.
+
+Where the question is decidable by calling the code rather than reading it,
+call it. A code read infers what a function should do; executing it decides
+what it does. Probe the public entry point with a synthetic input — a private
+helper can satisfy a code read while the serving path diverges from it — and
+let an executed probe, not a read, upgrade an answer from "should work" to
+"works".
 
 **Done when:** every claim to be stated has either a second witness or an
 explicit note that it has one source.
@@ -146,6 +158,12 @@ A finding that stays in the conversation is spent. Route each one:
 - Facts about how this user or project works belong in memory.
 - Facts that change per version belong nowhere, and should be re-derived on
   demand rather than stored stale.
+
+Routing has a gate: re-derive the finding in the turn that writes it. A wrong
+statement in conversation costs one correction; persisted, it is re-read and
+trusted for months, and the witness that would have caught it is gone. When a
+claim cannot be re-derived now, record when it was last verified, or write
+nothing.
 
 Confirm the destination reads back. A harness may mediate file access through
 policy, and a writable path is not always a readable one: an ignored scratch

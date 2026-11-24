@@ -6,7 +6,7 @@ Skills for working with agent harnesses.
 
 | Skill                 | What it does                                                                                                                                                                                | Claude Code                    |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| `agent-introspection` | Establishes what tools, storage, sessions, history and configuration the current harness has, and checks claims about the harness before they are acted on. Covers Claude Code, Kiro and Pi | `/agentic:agent-introspection` |
+| `agent-introspection` | Establishes what tools, storage, sessions, history and configuration the current harness has, and checks claims about the harness before they are acted on. Covers Claude Code, Kiro, Pi and Hermes | `/agentic:agent-introspection` |
 | `make-agents-md`      | Restructures a long or contradictory `AGENTS.md` or `CLAUDE.md` into a minimal root file plus grouped, linked docs                                                                          | `/agentic:make-agents-md`      |
 
 Every skill also loads on its own when a request matches its description.
@@ -15,6 +15,8 @@ Every skill also loads on its own when a request matches its description.
 
 - `agent-introspection`: `jq` and `ps`. Its `scripts/sample-agent-log.bash`,
   which samples records from a Claude Code session transcript, needs Bash.
+  Its `scripts/snapshot-env.bash`, which prints a live Hermes environment in
+  one pass, needs Bash as well.
 - `make-agents-md`: no tools beyond the agent's own.
 
 ## Compatibility
