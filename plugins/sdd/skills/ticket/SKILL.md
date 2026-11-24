@@ -39,8 +39,8 @@ Verified against tk 0.3.2 (`brew` package `ticket`, single binary `tk`).
    `tk edit` blocks on `$EDITOR` and there is no other non-interactive way to set
    one. `tk` reads whatever is on disk, so hand-written `deps:` and `links:`
    count as real (`tk dep` on one answers `Dependency already exists`), subject
-   to **Store integrity** below. (Cutting a plan into self-contained tickets is
-   the `plan-to-tickets` skill's subject; this step is the mechanics.)
+   to **Store integrity** below. This step covers the mechanics of filing, not
+   how to cut a plan into self-contained tickets.
    Record each ordering constraint with `tk dep <blocked-id> <blocker-id>`. Done
    when every unit of the plan has an ID and every "X before Y" in the plan is a
    `dep` edge; check with `tk blocked` and `tk dep tree <id>`.
@@ -71,7 +71,7 @@ Verified against tk 0.3.2 (`brew` package `ticket`, single binary `tk`).
 | `tk undep <id> <dep-id>`                                   | Removes one edge                                           |
 | `tk dep tree [--full] <id>`                                | `--full` disables dedup of repeated subtrees               |
 | `tk dep cycle`                                             | Cycles among open tickets                                  |
-| `tk link <id> <id> [id...]` / `tk unlink <id> <target-id>` | Symmetric, non-blocking; links **every pair**, not a star   |
+| `tk link <id> <id> [id...]` / `tk unlink <id> <target-id>` | Symmetric, non-blocking; links **every pair**, not a star  |
 | `tk ls [--status=X] [-a X] [-T X]`                         | All tickets; `list` is an alias                            |
 | `tk ready [-a X] [-T X]`                                   | Open/in_progress with all deps closed                      |
 | `tk blocked [-a X] [-T X]`                                 | Open/in_progress with unresolved deps                      |

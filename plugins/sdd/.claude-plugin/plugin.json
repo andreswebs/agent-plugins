@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sdd",
   "displayName": "SDD",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Skills for spec-driven development: write EARS requirements, derive a traced technical design, fact-check a plan against the code, and split it into dependency-mapped tickets",
   "author": {
     "name": "Andre Silva",
