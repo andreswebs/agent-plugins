@@ -18,6 +18,18 @@
       "source": "./plugins/meta-skills",
       "description": "Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks",
       "category": "development"
+    },
+    {
+      "name": "py",
+      "source": "./plugins/py",
+      "description": "Skills for Python tooling: uv projects and scripts, ruff linting and formatting, ty and strict pyright type checking",
+      "category": "development"
+    },
+    {
+      "name": "shell",
+      "source": "./plugins/shell",
+      "description": "Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc",
+      "category": "development"
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "shell",
+  "version": "0.1.0",
+  "description": "Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/shell",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["bash", "shell", "jq", "shelltest", "bc", "cli"]
+}

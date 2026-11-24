@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "py",
+  "version": "0.1.0",
+  "description": "Skills for Python tooling: uv projects and scripts, ruff linting and formatting, ty and strict pyright type checking",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/py",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["python", "uv", "ruff", "ty", "pyright", "linting"]
+}

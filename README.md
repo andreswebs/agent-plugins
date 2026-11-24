@@ -11,6 +11,8 @@ that implements the Agent Plugins format.
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | [azure-ops](plugins/azure-ops/)     | Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations                          |
 | [meta-skills](plugins/meta-skills/) | Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks |
+| [py](plugins/py/) | Skills for Python tooling: uv projects and scripts, ruff linting and formatting, ty and strict pyright type checking |
+| [shell](plugins/shell/) | Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc |
 
 ## Install
 

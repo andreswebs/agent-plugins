@@ -1,0 +1,137 @@
+; =============================================================================
+; SHELLTESTRUNNER TEST FILE SYNTAX - ABNF Specification (RFC 5234)
+; Supports Format 1 (deprecated), Format 2 (verbose), and Format 3 (preferred)
+; =============================================================================
+
+; -----------------------------------------------------------------------------
+; Top-Level Structure
+; -----------------------------------------------------------------------------
+
+test-file           = *blank-or-comment ( format2-file / format3-file / format1-file )
+
+format1-file        = 1*format1-test *blank-or-comment
+format2-file        = format2-test-group *format2-test-group *blank-or-comment
+format3-file        = format3-test-group *format3-test-group *blank-or-comment
+
+; -----------------------------------------------------------------------------
+; Format 3 (Preferred) - Short Delimiters
+; -----------------------------------------------------------------------------
+
+format3-test-group  = [ input-block-f3 ] 1*format3-test
+
+input-block-f3      = [ "<" newline ] *input-line
+                      ; First input block may omit the "<" delimiter
+
+format3-test        = *blank-or-comment command-f3 [ stdout-block-f3 ] [ stderr-block-f3 ] [ exitcode-f3 ]
+
+command-f3          = "$" [ SP ] command-text newline
+                      ; Two spaces after "$" makes command fixed (immune to --with)
+
+stdout-block-f3     = ( ">" SP regex-matcher newline ) /
+                      ( [ ">" newline ] *output-line )
+
+stderr-block-f3     = ">2" ( SP regex-matcher newline / newline *output-line )
+
+exitcode-f3         = ">=" [ SP exit-matcher ] newline
+
+; -----------------------------------------------------------------------------
+; Format 2 (Verbose) - Long Delimiters
+; -----------------------------------------------------------------------------
+
+format2-test-group  = [ input-block-f2 ] 1*format2-test
+
+input-block-f2      = [ "<<<" newline ] *input-line
+                      ; First input block may omit the "<<<" delimiter
+
+format2-test        = *blank-or-comment command-f2 [ stdout-block-f2 ] [ stderr-block-f2 ] [ exitcode-f2 ]
+
+command-f2          = "$$$" [ SP ] command-text newline
+                      ; Two spaces after "$$$" makes command fixed (immune to --with)
+
+stdout-block-f2     = ( ">>>" SP regex-matcher newline ) /
+                      ( [ ">>>" newline ] *output-line )
+
+stderr-block-f2     = ">>>2" ( SP regex-matcher newline / newline *output-line )
+
+exitcode-f2         = ">>>=" [ SP exit-matcher ] newline
+
+; -----------------------------------------------------------------------------
+; Format 1 (Deprecated) - Command First, Exit Code Required
+; -----------------------------------------------------------------------------
+
+format1-test        = *blank-or-comment command-f1 [ input-block-f1 ] [ stdout-block-f1 ]
+                      [ stderr-block-f1 ] exitcode-f1
+
+command-f1          = command-text newline
+                      ; Leading space makes command fixed (immune to --with)
+
+input-block-f1      = "<<<" newline *input-line
+
+stdout-block-f1     = ">>>" ( SP regex-matcher newline / newline *output-line )
+
+stderr-block-f1     = ">>>2" ( SP regex-matcher newline / newline *output-line )
+
+exitcode-f1         = ">>>=" [ SP exit-matcher ] newline
+                      ; Exit code is REQUIRED in format 1
+
+; -----------------------------------------------------------------------------
+; Matchers (Common to all formats)
+; -----------------------------------------------------------------------------
+
+regex-matcher       = [ negation ] "/" regex-pattern "/"
+                      ; Forward slashes in pattern must be escaped as "\/"
+
+exit-matcher        = regex-matcher / numeric-matcher
+
+numeric-matcher     = [ negation ] 1*DIGIT
+
+negation            = "!"
+
+regex-pattern       = *( escaped-slash / regex-char )
+escaped-slash       = "\" "/"
+regex-char          = %x01-2E / %x30-5B / %x5D-FF
+                      ; Any character except "/" and "\" (unless escaped)
+
+; -----------------------------------------------------------------------------
+; Common Elements
+; -----------------------------------------------------------------------------
+
+command-text        = 1*( %x20-FF )
+                      ; Any printable characters; leading space = fixed command
+
+input-line          = line newline
+output-line         = line newline
+
+line                = *( %x00-09 / %x0B-FF )
+                      ; Any characters except newline
+
+blank-or-comment    = comment-line / blank-line
+
+comment-line        = *WSP "#" *( %x20-FF ) newline
+
+blank-line          = *WSP newline
+
+newline             = LF / CRLF
+
+; -----------------------------------------------------------------------------
+; Macros (Preprocessor - applied before parsing)
+; -----------------------------------------------------------------------------
+
+macro-definition    = "-D" macro-name "=" macro-value
+                      ; Defined via command-line, replaced in test file text
+
+macro-name          = 1*( ALPHA / DIGIT / "_" / "{" / "}" )
+
+macro-value         = *( %x20-FF )
+
+; -----------------------------------------------------------------------------
+; Core ABNF Rules (RFC 5234)
+; -----------------------------------------------------------------------------
+
+ALPHA               = %x41-5A / %x61-7A
+DIGIT               = %x30-39
+SP                  = %x20
+WSP                 = SP / HTAB
+HTAB                = %x09
+LF                  = %x0A
+CRLF                = %x0D %x0A
