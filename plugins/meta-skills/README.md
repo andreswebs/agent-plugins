@@ -6,12 +6,12 @@ can become a skill, and hand a task over as a runbook the user reviews and runs.
 
 ## Skills
 
-| Skill | What it does | Claude Code |
-| --- | --- | --- |
-| `skill-builder` | Reference for authoring, editing and auditing agent skills against the Agent Skills spec, with a validator script | `/meta-skills:skill-builder` |
-| `skill-recorder` | Field-tests a skill on a real task and records what happened while it ran | `/meta-skills:skill-recorder` |
-| `task-recorder` | Records a task while it is done (phases, forks, pitfalls, user interventions, commands worth scripting) as a seed for a future skill | `/meta-skills:task-recorder` |
-| `task-script` | Hands a task over as one idempotent Bash runbook, dry run by default, for the user to review and run | `/meta-skills:task-script` |
+| Skill            | What it does                                                                                                                         | Claude Code                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| `skill-builder`  | Reference for authoring, editing and auditing agent skills against the Agent Skills spec, with a validator script                    | `/meta-skills:skill-builder`  |
+| `skill-recorder` | Field-tests a skill on a real task and records what happened while it ran                                                            | `/meta-skills:skill-recorder` |
+| `task-recorder`  | Records a task while it is done (phases, forks, pitfalls, user interventions, commands worth scripting) as a seed for a future skill | `/meta-skills:task-recorder`  |
+| `task-script`    | Hands a task over as one idempotent Bash runbook, dry run by default, for the user to review and run                                 | `/meta-skills:task-script`    |
 
 Every skill also loads on its own when a request matches its description.
 
@@ -37,13 +37,10 @@ export AGENT_ARTIFACTS_DIR="${HOME}/agentartifacts"
 
 ## Compatibility
 
-| Client | Reads |
-| --- | --- |
-| Claude Code | `.claude-plugin/plugin.json` and `skills/` |
-| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/` |
-
-The plugin ships only skills, so it conforms fully to the Agent Plugins
-specification.
+| Client                      | Reads                                      |
+| --------------------------- | ------------------------------------------ |
+| Claude Code                 | `.claude-plugin/plugin.json` and `skills/` |
+| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/`                |
 
 ## Install
 

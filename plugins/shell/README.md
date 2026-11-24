@@ -6,12 +6,12 @@ and do engineering arithmetic and estimation with bc.
 
 ## Skills
 
-| Skill | What it does | Claude Code |
-| --- | --- | --- |
-| `bash` | Conventions and defensive patterns for Bash scripts, shell libraries and BATS tests, with a triage gate for which features a script has earned | `/shell:bash` |
-| `jq` | The jq CLI and language for querying, filtering, transforming and building JSON and JSON Lines | `/shell:jq` |
-| `shelltest` | Writes shelltestrunner `.test` files for command-line programs | `/shell:shelltest` |
-| `math` | Calculations with bc, Fermi estimation, capacity planning and SRE math such as percentiles, Little's Law and error budgets | `/shell:math` |
+| Skill       | What it does                                                                                                                                   | Claude Code        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `bash`      | Conventions and defensive patterns for Bash scripts, shell libraries and BATS tests, with a triage gate for which features a script has earned | `/shell:bash`      |
+| `jq`        | The jq CLI and language for querying, filtering, transforming and building JSON and JSON Lines                                                 | `/shell:jq`        |
+| `shelltest` | Writes shelltestrunner `.test` files for command-line programs                                                                                 | `/shell:shelltest` |
+| `math`      | Calculations with bc, Fermi estimation, capacity planning and SRE math such as percentiles, Little's Law and error budgets                     | `/shell:math`      |
 
 Every skill also loads on its own when a request matches its description.
 
@@ -25,13 +25,10 @@ Every skill also loads on its own when a request matches its description.
 
 ## Compatibility
 
-| Client | Reads |
-| --- | --- |
-| Claude Code | `.claude-plugin/plugin.json` and `skills/` |
-| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/` |
-
-The plugin ships only skills, so it conforms fully to the Agent Plugins
-specification.
+| Client                      | Reads                                      |
+| --------------------------- | ------------------------------------------ |
+| Claude Code                 | `.claude-plugin/plugin.json` and `skills/` |
+| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/`                |
 
 ## Install
 

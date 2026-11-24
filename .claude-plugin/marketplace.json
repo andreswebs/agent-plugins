@@ -30,6 +30,18 @@
       "source": "./plugins/shell",
       "description": "Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc",
       "category": "development"
+    },
+    {
+      "name": "agentic",
+      "source": "./plugins/agentic",
+      "description": "Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md",
+      "category": "development"
+    },
+    {
+      "name": "inter",
+      "source": "./plugins/inter",
+      "description": "Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent",
+      "category": "development"
     }
   ]
 }

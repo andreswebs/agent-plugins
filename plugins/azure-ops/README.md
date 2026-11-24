@@ -7,19 +7,19 @@ things up in Microsoft Learn.
 
 ## Skills
 
-| Skill | What it does | Claude Code |
-| --- | --- | --- |
-| `az-sub-orienteering` | Read-only sweep of a subscription you did not build: inventory, identity, exposure, network, governance, cost and more, then a ranked triage of the findings | `/azure-ops:az-sub-orienteering` |
+| Skill                    | What it does                                                                                                                                                                                                                    | Claude Code                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `az-sub-orienteering`    | Read-only sweep of a subscription you did not build: inventory, identity, exposure, network, governance, cost and more, then a ranked triage of the findings                                                                    | `/azure-ops:az-sub-orienteering`    |
 | `az-devops-orienteering` | Read-only sweep of an Azure DevOps organisation you did not build: access, people and administrators, hidden projects, repository review controls, pipeline history and agents, boards and in-flight work, then a ranked triage | `/azure-ops:az-devops-orienteering` |
-| `azure-pricing` | Queries the public Azure Retail Prices API for cost estimates and pricing comparisons | `/azure-ops:azure-pricing` |
+| `azure-pricing`          | Queries the public Azure Retail Prices API for cost estimates and pricing comparisons                                                                                                                                           | `/azure-ops:azure-pricing`          |
 
 Every skill also loads on its own when a request matches its description.
 
 ## MCP servers
 
-| Server | Transport | Credentials |
-| --- | --- | --- |
-| `microsoft-learn` | Remote, `https://learn.microsoft.com/api/mcp` | None |
+| Server            | Transport                                     | Credentials |
+| ----------------- | --------------------------------------------- | ----------- |
+| `microsoft-learn` | Remote, `https://learn.microsoft.com/api/mcp` | None        |
 
 ## Requirements
 
@@ -37,13 +37,10 @@ Every skill also loads on its own when a request matches its description.
 
 ## Compatibility
 
-| Client | Reads |
-| --- | --- |
-| Claude Code | `.claude-plugin/plugin.json`, `skills/`, and `mcp.json` through the manifest's `mcpServers` redirect |
-| Agent Plugins 1.0.0 clients | `plugin.json`, `skills/`, `mcp.json` |
-
-The plugin ships only skills and MCP configuration, so it conforms fully to the
-Agent Plugins specification.
+| Client                      | Reads                                                                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Claude Code                 | `.claude-plugin/plugin.json`, `skills/`, and `mcp.json` through the manifest's `mcpServers` redirect |
+| Agent Plugins 1.0.0 clients | `plugin.json`, `skills/`, `mcp.json`                                                                 |
 
 ## Install
 

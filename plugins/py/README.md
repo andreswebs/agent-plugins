@@ -6,11 +6,11 @@ ruff, strict pyright and ty clean.
 
 ## Skills
 
-| Skill | What it does | Claude Code |
-| --- | --- | --- |
-| `uv` | Guide to uv for Python projects, scripts with inline metadata, packages, tools and Python versions | `/py:uv` |
-| `ruff` | Guide to ruff for linting, formatting and fixing Python code | `/py:ruff` |
-| `ty` | Guide to ty for type checking Python code and setting it up in projects | `/py:ty` |
+| Skill    | What it does                                                                                                                           | Claude Code  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `uv`     | Guide to uv for Python projects, scripts with inline metadata, packages, tools and Python versions                                     | `/py:uv`     |
+| `ruff`   | Guide to ruff for linting, formatting and fixing Python code                                                                           | `/py:ruff`   |
+| `ty`     | Guide to ty for type checking Python code and setting it up in projects                                                                | `/py:ty`     |
 | `python` | Workflow for clearing ruff, strict pyright and ty errors in standalone `uv run` scripts, and for editor errors the CLI does not report | `/py:python` |
 
 Every skill also loads on its own when a request matches its description.
@@ -23,13 +23,10 @@ Every skill also loads on its own when a request matches its description.
 
 ## Compatibility
 
-| Client | Reads |
-| --- | --- |
-| Claude Code | `.claude-plugin/plugin.json` and `skills/` |
-| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/` |
-
-The plugin ships only skills, so it conforms fully to the Agent Plugins
-specification.
+| Client                      | Reads                                      |
+| --------------------------- | ------------------------------------------ |
+| Claude Code                 | `.claude-plugin/plugin.json` and `skills/` |
+| Agent Plugins 1.0.0 clients | `plugin.json` and `skills/`                |
 
 ## Install
 

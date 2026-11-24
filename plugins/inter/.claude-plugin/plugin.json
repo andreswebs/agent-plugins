@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "inter",
+  "displayName": "Inter",
+  "version": "0.1.0",
+  "description": "Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/inter",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["brainstorming", "planning", "questioning", "handoff", "collaboration"]
+}
