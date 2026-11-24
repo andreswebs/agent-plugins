@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "sdd",
+  "displayName": "SDD",
+  "version": "0.1.0",
+  "description": "Skills for spec-driven development: write EARS requirements, derive a traced technical design, fact-check a plan against the code, and split it into dependency-mapped tickets",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/sdd",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["requirements", "ears", "prd", "technical-design", "planning", "tickets", "spec-driven-development"]
+}

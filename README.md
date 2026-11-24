@@ -7,15 +7,16 @@ that implements the Agent Plugins format.
 
 ## Plugins
 
-| Plugin                              | Description                                                                                                                                               |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [azure-ops](plugins/azure-ops/)     | Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations                                                                   |
-| [meta-skills](plugins/meta-skills/) | Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks                                          |
-| [py](plugins/py/)                   | Skills for Python tooling: uv projects and scripts, ruff linting and formatting, ty and strict pyright type checking                                      |
-| [shell](plugins/shell/)             | Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc                                       |
-| [agentic](plugins/agentic/)         | Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md |
-| [inter](plugins/inter/)             | Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent               |
-| [aws-ops](plugins/aws-ops/)         | Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost                           |
+| Plugin                              | Description                                                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [azure-ops](plugins/azure-ops/)     | Skills and MCP servers for operating Azure subscriptions and Azure DevOps organisations                                                                                        |
+| [meta-skills](plugins/meta-skills/) | Skills for building, field-testing and recording agent skills, and for handing tasks over as reviewable runbooks                                                               |
+| [py](plugins/py/)                   | Skills for Python tooling: uv projects and scripts, ruff linting and formatting, ty and strict pyright type checking                                                           |
+| [shell](plugins/shell/)             | Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc                                                            |
+| [agentic](plugins/agentic/)         | Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md                      |
+| [inter](plugins/inter/)             | Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent                                    |
+| [aws-ops](plugins/aws-ops/)         | Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost                                                |
+| [sdd](plugins/sdd/)                 | Skills for spec-driven development: write EARS requirements, derive a traced technical design, fact-check a plan against the code, and split it into dependency-mapped tickets |
 
 ## Install
 

@@ -48,6 +48,12 @@
       "source": "./plugins/aws-ops",
       "description": "Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost",
       "category": "cloud"
+    },
+    {
+      "name": "sdd",
+      "source": "./plugins/sdd",
+      "description": "Skills for spec-driven development: write EARS requirements, derive a traced technical design, fact-check a plan against the code, and split it into dependency-mapped tickets",
+      "category": "development"
     }
   ]
 }
