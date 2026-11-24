@@ -79,7 +79,7 @@ Every function that takes a path, a name, or JSON gets a case per failure mode, 
     local unsafe_paths=(
         '$(rm -rf /tmp/root-was-wiped)'
         '`touch /tmp/hacked`'
-        '|cat /etc/passwd'
+        '|cat /tmp/fixture'
         ';echo dangerous'
         '&&echo injected'
         '||echo fallback'
