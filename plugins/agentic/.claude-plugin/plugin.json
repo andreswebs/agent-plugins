@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "agentic",
   "displayName": "Agentic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md",
   "author": {
     "name": "Andre Silva",

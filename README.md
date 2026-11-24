@@ -15,6 +15,7 @@ that implements the Agent Plugins format.
 | [shell](plugins/shell/)             | Skills for the command line: defensive Bash scripting, jq for JSON, shelltestrunner tests, and calculations with bc                                       |
 | [agentic](plugins/agentic/)         | Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md |
 | [inter](plugins/inter/)             | Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent               |
+| [aws-ops](plugins/aws-ops/)         | Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost                           |
 
 ## Install
 

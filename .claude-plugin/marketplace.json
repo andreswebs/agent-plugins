@@ -42,6 +42,12 @@
       "source": "./plugins/inter",
       "description": "Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent",
       "category": "development"
+    },
+    {
+      "name": "aws-ops",
+      "source": "./plugins/aws-ops",
+      "description": "Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost",
+      "category": "cloud"
     }
   ]
 }

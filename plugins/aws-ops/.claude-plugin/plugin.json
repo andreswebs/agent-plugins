@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "aws-ops",
+  "displayName": "AWS Ops",
+  "version": "0.1.0",
+  "description": "Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/aws-ops",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": ["aws", "aws-cli", "cloud", "operations"],
+  "mcpServers": "./mcp.json"
+}
