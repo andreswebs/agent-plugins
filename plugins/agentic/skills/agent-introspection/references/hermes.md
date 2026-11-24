@@ -22,17 +22,17 @@ bash scripts/snapshot-env.bash
 ```
 
 Run it before answering anything about the deployment, and take every concrete
-value from its output. This document records the *shape* of the environment,
+value from its output. This document records the _shape_ of the environment,
 not its current facts.
 
 ## Surfaces
 
-| Surface | What it answers | Cost |
-| --- | --- | --- |
-| `HERMES_*` environment variables | Which home, which interpreters, which build | Free |
-| `${HERMES_HOME}` on disk | History, memory, config, skills, plugins, cron | Cheap |
-| The `hermes` CLI | What this build can do | Cheap |
-| The loaded context | Tool, skill, plugin rosters | Already paid |
+| Surface                          | What it answers                                | Cost         |
+| -------------------------------- | ---------------------------------------------- | ------------ |
+| `HERMES_*` environment variables | Which home, which interpreters, which build    | Free         |
+| `${HERMES_HOME}` on disk         | History, memory, config, skills, plugins, cron | Cheap        |
+| The `hermes` CLI                 | What this build can do                         | Cheap        |
+| The loaded context               | Tool, skill, plugin rosters                    | Already paid |
 
 ## Self-location
 
@@ -44,7 +44,7 @@ env | grep -E '^HERMES_'
   and managed deployments relocate it, and profile installs use
   `~/.hermes/profiles/<name>/`. Never assume the default; read the variable.
 - **`HERMES_PYTHON` / `HERMES_NODE`** — the interpreters the harness itself
-  runs on. The `python3` first on `PATH` is frequently a *different*
+  runs on. The `python3` first on `PATH` is frequently a _different_
   interpreter (a venv, a system Python), so a `pip show` or an `import` there
   says nothing about what the runtime can import. Check packages in
   `$HERMES_PYTHON`, not in the shell's python.
@@ -70,18 +70,18 @@ returns empty and reads as "the code never mentions X".
 
 What lives in `${HERMES_HOME}`:
 
-| Path | What it is |
-| --- | --- |
-| `config.yaml` | Live config: model, memory provider, plugins, stt/tts |
-| `.env` | Secrets. Introspection stops at the *names* |
-| `SOUL.md` | Agent identity |
-| `AGENTS.md` / `CLAUDE.md` | Instructions for editing the home, when it is a git working tree |
-| `memories/MEMORY.md`, `memories/USER.md` | Agent notes and user profile — injected into every session |
-| `skills/<category>/<name>/SKILL.md` | Skill library, with `references/`, `templates/`, `scripts/` beside |
-| `state.db` | Sessions and messages (SQLite + FTS5) |
-| `plugins/` | Installed plugins — real directories, or symlinks into the store |
-| `cron/jobs.json`, `cron/executions.db`, `cron/output/` | Scheduled jobs, run history, delivered output |
-| `logs/`, `sessions/`, `cache/` | Runtime artifacts |
+| Path                                                   | What it is                                                         |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `config.yaml`                                          | Live config: model, memory provider, plugins, stt/tts              |
+| `.env`                                                 | Secrets. Introspection stops at the _names_                        |
+| `SOUL.md`                                              | Agent identity                                                     |
+| `AGENTS.md` / `CLAUDE.md`                              | Instructions for editing the home, when it is a git working tree   |
+| `memories/MEMORY.md`, `memories/USER.md`               | Agent notes and user profile — injected into every session         |
+| `skills/<category>/<name>/SKILL.md`                    | Skill library, with `references/`, `templates/`, `scripts/` beside |
+| `state.db`                                             | Sessions and messages (SQLite + FTS5)                              |
+| `plugins/`                                             | Installed plugins — real directories, or symlinks into the store   |
+| `cron/jobs.json`, `cron/executions.db`, `cron/output/` | Scheduled jobs, run history, delivered output                      |
+| `logs/`, `sessions/`, `cache/`                         | Runtime artifacts                                                  |
 
 Plugin-owned databases appear as plugins are installed (a memory provider's
 fact store, a kanban board's tasks, a feed reader's feeds). `ls *.db` is the
@@ -90,13 +90,13 @@ plugin documents them.
 
 ## Memory architecture
 
-| Layer | Path | Scope | Injected |
-| --- | --- | --- | --- |
-| Agent notes | `memories/MEMORY.md` | Durable facts, environment | Every session |
-| User profile | `memories/USER.md` | Who the user is | Every session |
-| Skills | `skills/*/SKILL.md` | Procedural knowledge | On demand |
-| Session DB | `state.db` | Full conversation history | On demand |
-| Cron | `cron/jobs.json` | Scheduled work | Scheduler only |
+| Layer        | Path                 | Scope                      | Injected       |
+| ------------ | -------------------- | -------------------------- | -------------- |
+| Agent notes  | `memories/MEMORY.md` | Durable facts, environment | Every session  |
+| User profile | `memories/USER.md`   | Who the user is            | Every session  |
+| Skills       | `skills/*/SKILL.md`  | Procedural knowledge       | On demand      |
+| Session DB   | `state.db`           | Full conversation history  | On demand      |
+| Cron         | `cron/jobs.json`     | Scheduled work             | Scheduler only |
 
 What persists is what was written to one of these. In-context reasoning, tool
 results, and working notes not explicitly saved are gone when the session
@@ -166,7 +166,7 @@ may carry a pre-run script, and two modes matter:
   and any delivery entirely — no tokens, no message — while the script still
   runs. Any other output wakes the agent normally. This turns any scheduled
   job into a trigger-based one.
-- **`no_agent`.** The script *is* the job; the agent never runs. A different
+- **`no_agent`.** The script _is_ the job; the agent never runs. A different
   thing from the wake gate.
 
 **Silent deliveries on Telegram.** Cron output that delivers to Telegram

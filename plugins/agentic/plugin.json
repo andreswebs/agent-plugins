@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agentic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Skills for working with agent harnesses: introspect the harness an agent runs in, and restructure agent instruction files such as AGENTS.md and CLAUDE.md",
   "author": {
     "name": "Andre Silva",
@@ -10,5 +10,12 @@
   "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/agentic",
   "repository": "https://github.com/andreswebs/agent-plugins",
   "license": "MIT",
-  "keywords": ["agents", "harness", "introspection", "agents-md", "claude-md", "hermes"]
+  "keywords": [
+    "agents",
+    "harness",
+    "introspection",
+    "agents-md",
+    "claude-md",
+    "hermes"
+  ]
 }

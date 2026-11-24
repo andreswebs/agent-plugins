@@ -13,12 +13,12 @@ Harness facts drift between versions — re-derive rather than trust.
 
 ## The four introspection surfaces
 
-| Surface                 | What it answers                                | Cost           |
-| ----------------------- | ---------------------------------------------- | -------------- |
-| Environment variables   | Which session, which model, which effort       | Free           |
-| `~/.pi/agent/` on disk  | Sessions, settings, skills, extensions         | Cheap          |
-| The `pi` CLI            | What this build can do                         | Cheap          |
-| The prompt itself       | Tool list, skill list, loaded context files    | Already loaded |
+| Surface                | What it answers                             | Cost           |
+| ---------------------- | ------------------------------------------- | -------------- |
+| Environment variables  | Which session, which model, which effort    | Free           |
+| `~/.pi/agent/` on disk | Sessions, settings, skills, extensions      | Cheap          |
+| The `pi` CLI           | What this build can do                      | Cheap          |
+| The prompt itself      | Tool list, skill list, loaded context files | Already loaded |
 
 Work down that list. The first two answer most questions.
 
@@ -32,15 +32,15 @@ env | grep -E '^(AI_AGENT|PI_)'
 
 Observed keys, and what each is good for:
 
-| Variable                | Meaning                                                     |
-| ----------------------- | ----------------------------------------------------------- |
-| `AI_AGENT=pi`           | Generic cross-harness marker: "an agent launched me".       |
-| `PI_CODING_AGENT=true`  | Pi-specific marker. **Not set** when pi is embedded via SDK. |
-| `PI_SESSION_ID`         | This session's UUID.                                        |
-| `PI_SESSION_FILE`       | Absolute path to this session's JSONL transcript.           |
-| `PI_PROVIDER`           | Currently selected provider (e.g. `zai`).                   |
-| `PI_MODEL`              | Currently selected model ID.                                |
-| `PI_REASONING_LEVEL`    | Effective level: `off`…`max`.                               |
+| Variable               | Meaning                                                      |
+| ---------------------- | ------------------------------------------------------------ |
+| `AI_AGENT=pi`          | Generic cross-harness marker: "an agent launched me".        |
+| `PI_CODING_AGENT=true` | Pi-specific marker. **Not set** when pi is embedded via SDK. |
+| `PI_SESSION_ID`        | This session's UUID.                                         |
+| `PI_SESSION_FILE`      | Absolute path to this session's JSONL transcript.            |
+| `PI_PROVIDER`          | Currently selected provider (e.g. `zai`).                    |
+| `PI_MODEL`             | Currently selected model ID.                                 |
+| `PI_REASONING_LEVEL`   | Effective level: `off`…`max`.                                |
 
 The big convenience vs Claude Code: **`PI_SESSION_FILE` hands you the
 transcript path directly** — no slug derivation, no registry lookup. It is
@@ -49,7 +49,7 @@ unset for ephemeral sessions (`--no-session`).
 Gotchas worth knowing before trusting a reading:
 
 - Values are **resolved per command**. Switching models or thinking level
-  changes what the *next* shell command sees, without restarting pi. A
+  changes what the _next_ shell command sees, without restarting pi. A
   mid-session `/model` switch is therefore visible in `env` and in the
   transcript's `model_change` entry, two independent witnesses.
 - They are injected **only into the LLM-callable `bash`/`powershell` tools**.
@@ -117,18 +117,18 @@ everything after is a **tree** of entries linked by 8-char hex `id`/`parentId`
 
 Entry types (`type` field):
 
-| `type`                  | Contents                                              |
-| ----------------------- | ----------------------------------------------------- |
-| `session`               | Header: version, id, cwd, optional `parentSession`    |
-| `message`               | One conversation turn; role lives in `.message.role`  |
-| `model_change`          | Provider + modelId switch mid-session                 |
-| `thinking_level_change` | Reasoning level switch                                 |
-| `compaction`            | Summary checkpoint (see below)                        |
-| `branch_summary`        | LLM summary of an abandoned branch                    |
-| `custom`                | Extension state; **not** in LLM context               |
-| `custom_message`        | Extension-injected context; **is** in LLM context     |
-| `label`                 | User bookmark on an entry                             |
-| `session_info`          | Display name (from `/name`)                           |
+| `type`                  | Contents                                             |
+| ----------------------- | ---------------------------------------------------- |
+| `session`               | Header: version, id, cwd, optional `parentSession`   |
+| `message`               | One conversation turn; role lives in `.message.role` |
+| `model_change`          | Provider + modelId switch mid-session                |
+| `thinking_level_change` | Reasoning level switch                               |
+| `compaction`            | Summary checkpoint (see below)                       |
+| `branch_summary`        | LLM summary of an abandoned branch                   |
+| `custom`                | Extension state; **not** in LLM context              |
+| `custom_message`        | Extension-injected context; **is** in LLM context    |
+| `label`                 | User bookmark on an entry                            |
+| `session_info`          | Display name (from `/name`)                          |
 
 Message roles (`.message.role`): `user`, `assistant`, `toolResult`,
 `bashExecution` (user `!`/`!!` commands; `excludeFromContext: true` marks the
