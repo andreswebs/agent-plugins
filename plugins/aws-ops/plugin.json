@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "aws-ops",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost",
   "author": {
     "name": "Andre Silva",

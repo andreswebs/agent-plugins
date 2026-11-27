@@ -363,6 +363,49 @@ aws deploy create-deployment-group \
         "terminateBlueInstancesOnDeploymentSuccess={action=TERMINATE,terminationWaitTimeInMinutes=5},deploymentReadyOption={actionOnTimeout=CONTINUE_DEPLOYMENT}"
 ```
 
+### Diagnose a Stuck or Failed Deployment
+
+Work through these in order; each one narrows where the next looks. The CodeDeploy CLI namespace is `deploy`, not `codedeploy`.
+
+```sh
+# 1. Status, compute platform, deployment style, rollback config, error message
+aws deploy get-deployment --deployment-id "${DEPLOYMENT_ID}" \
+    --query 'deploymentInfo.{status:status,platform:computePlatform,style:deploymentStyle,rollback:autoRollbackConfiguration,error:errorInformation}'
+
+# 2. The stuck lifecycle event, and each task set's running count and traffic weight
+aws deploy list-deployment-targets --deployment-id "${DEPLOYMENT_ID}"
+aws deploy batch-get-deployment-targets --deployment-id "${DEPLOYMENT_ID}" \
+    --target-ids "${CLUSTER}:${SERVICE}"
+
+# 3. Service events
+aws ecs describe-services --cluster "${CLUSTER}" --services "${SERVICE}" \
+    --query 'services[0].events[:15].[createdAt,message]' --output text
+
+# 4. Target health, on both target groups
+aws elbv2 describe-target-health --target-group-arn "${TG_ARN}"
+```
+
+The service events say which health check is failing. "failed container health checks" points at the task definition's `healthCheck`; "failed ELB health checks" points at the target group's health check settings.
+
+```sh
+# 5. Compare the failing task definition with the last good one
+for td in "${TD_GOOD}" "${TD_BAD}"; do
+    aws ecs describe-task-definition --task-definition "${td}" \
+        --query 'taskDefinition.containerDefinitions[].{image:image,healthCheck:healthCheck,ports:portMappings}'
+done
+
+# 6. Container logs, from the start of the task
+aws logs get-log-events --log-group-name "${LOG_GROUP}" \
+    --log-stream-name "${STREAM_PREFIX}/${CONTAINER}/${TASK_ID}" \
+    --start-from-head --query 'events[].message' --output text
+```
+
+The awslogs stream name is `prefix/container-name/task-id`. Without `--start-from-head`, `get-log-events` returns the newest events, which for a task stopped by a failed health check are its shutdown lines rather than its startup ones.
+
+An automatic rollback appears as its own deployment that succeeds within seconds of the failed one and reuses its AppSpec, so the AppSpec names the failed task definition; `describe-services` shows the revision actually serving.
+
+When the serving config is still stale after a fix was merged, check whether infrastructure code ignores the field (a Terraform `ignore_changes` on `container_definitions`) and how the pipeline builds the revision: a pipeline that copies the latest revision in the family and swaps only the image never picks up an edit the infrastructure code ignores.
+
 ## Useful Queries
 
 ```sh
