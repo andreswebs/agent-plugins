@@ -17,6 +17,8 @@ that implements the Agent Plugins format.
 | [inter](plugins/inter/)             | Skills for working through ideas with the user: brainstorm, stress-test a plan by questioning, and hand a conversation off to another agent                                    |
 | [aws-ops](plugins/aws-ops/)         | Skills and MCP servers for operating AWS accounts with the AWS CLI: compute, data, networking, security, observability and cost                                                |
 | [sdd](plugins/sdd/)                 | Skills for spec-driven development: write EARS requirements, derive a traced technical design, fact-check a plan against the code, and split it into dependency-mapped tickets |
+| [scholarly-research](plugins/scholarly-research/) | Skills for reproducible literature work: resolve references, search scholarly databases, snowball citations, harvest collections over OAI-PMH, fetch legal open-access full texts and file records into Zotero, with every query logged |
+| [brazil-public-data](plugins/brazil-public-data/) | Skills for Brazilian public data: municipal statistics from IBGE and municipal official gazettes from Querido Diário, with every request logged |
 
 ## Install
 

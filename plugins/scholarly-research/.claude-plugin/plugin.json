@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "scholarly-research",
+  "displayName": "Scholarly Research",
+  "version": "0.1.0",
+  "description": "Skills for reproducible literature work: resolve references, search scholarly databases, snowball citations, harvest collections over OAI-PMH, fetch legal open-access full texts and file records into Zotero, with every query logged",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/scholarly-research",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "literature-review",
+    "bibliography",
+    "open-access",
+    "zotero",
+    "openalex"
+  ]
+}

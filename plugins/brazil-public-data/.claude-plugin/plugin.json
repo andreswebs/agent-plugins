@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "brazil-public-data",
+  "displayName": "Brazil Public Data",
+  "version": "0.1.0",
+  "description": "Skills for Brazilian public data: municipal statistics from IBGE and municipal official gazettes from Querido Diário, with every request logged",
+  "author": {
+    "name": "Andre Silva",
+    "email": "andreswebs@pm.me"
+  },
+  "homepage": "https://github.com/andreswebs/agent-plugins/tree/main/plugins/brazil-public-data",
+  "repository": "https://github.com/andreswebs/agent-plugins",
+  "license": "MIT",
+  "keywords": [
+    "brazil",
+    "ibge",
+    "sidra",
+    "official-gazettes",
+    "public-data"
+  ]
+}
