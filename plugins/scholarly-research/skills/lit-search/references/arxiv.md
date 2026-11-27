@@ -11,6 +11,13 @@ with a growing wait. A `200` can still be an error: an `<entry>` whose
 `<id>` is `https://arxiv.org/api/errors`. Always send `search_query` or
 `id_list`; the bare endpoint answered 503.
 
+A lookup by `id_list` that answers `200` with no `<entry>` does not show
+that the paper is missing: a malformed identifier answers the same way
+(see "Verified"). Check the id's form before reporting a paper absent:
+`YYMM.NNNN` (to 2014) or `YYMM.NNNNN` (from 2015), each with an optional
+`vN`, or the older `archive/YYMMNNN` with an optional subject class
+(`hep-th/9901001`, `math.GT/0309136`).
+
 arXiv is an English-language preprint corpus for physics, mathematics,
 computer science, statistics and economics, with no language filter and
 almost no Portuguese material, so it runs for English strings only.
@@ -42,6 +49,13 @@ curl --silent --max-time 120 --get --output "${RAW}/arxiv-1.xml" --write-out '%{
   gives no diagnostics: a complex query that returns 0 where hits were
   expected is simplified one clause at a time. Hit counts are
   approximate.
+- A quoted phrase can return 0 for works that use it. On 2026-11-26
+  `ti:"Talk to the City" OR abs:"Talk to the City"`, two other software
+  names in the same form, and a two-word topic phrase all returned 0
+  while OpenAlex and the web held works naming them. The cause was not
+  established; stopwords inside a phrase are one candidate. Such a zero
+  is unconfirmed, not absence, when another index or the web shows
+  works, and the log line's `notes` says so.
 - `start` is 0-based, `max_results` at most 2,000 per call and 30,000 per
   result set; the manual asks that any query over 1,000 hits be refined.
   A page beyond the cap answered HTTP 500.

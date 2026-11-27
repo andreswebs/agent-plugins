@@ -26,6 +26,12 @@ scripted; a person may search it and log the search with
 `operator: "human"`. A service the project's policy excludes is neither
 searched nor fetched, through any route.
 
+`ts` is the time each query was sent. Read the clock (`date -u`)
+immediately before sending a web query and write its log line before
+sending the next; a batch of queries logged afterwards under one shared
+time misstates when each was sent (on 2026-11-26 four queries sent at
+about 12:47Z were logged at 13:05Z).
+
 ## Hit lines
 
 A web result kept becomes one hit line in the shape of

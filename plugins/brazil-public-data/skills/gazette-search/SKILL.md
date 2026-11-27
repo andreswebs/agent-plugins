@@ -58,7 +58,10 @@ of a batch has failed, since the service fails query by query and one
    ORed); mark a required extra term with `+`. For each query take the
    count alone with `size=0` over the full window and log it. A count over
    10,000 splits the window by year, then by month, until every piece is
-   under it. Done when every (query, window) pair has a logged count below
+   under it. A need for every gazette in a window, whatever the terms, is
+   not met by paging a broad query: it goes to the yearly file of step 5,
+   one download per year, which the service's terms name as the intended
+   bulk route. Done when every (query, window) pair has a logged count below
    10,000 and the user's cap, if any, is noted.
 3. **Page the hits.** `size=100`, `sort_by=ascending_date`, `offset` rising
    by 100, `excerpt_size=500`, `number_of_excerpts=3`, `pre_tags=<<`,

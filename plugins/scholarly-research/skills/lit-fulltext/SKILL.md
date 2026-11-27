@@ -162,6 +162,23 @@ gave; original and translated). Differences of case, punctuation or
 language of the same title are a **match**. For an XML or HTML copy the
 title element is compared the same way.
 
+When the record lists people as authors, a title match is confirmed on
+them: at least one of their family names is printed on the same page.
+When none is, the copy is a **mismatch** as well, noted `author
+mismatch: <names seen>`, since a repository can deposit under a work's
+DOI a discussion of the work by another author (on 2026-11-24 a seminar
+discussion paper stood under a book chapter's DOI). A record whose
+author is an organisation, or that has no author, keeps the title check
+alone.
+
+A match on a title in another language than the record's means the copy
+is a translated edition. It is kept, its `language` is the language of
+its title page, and `notes` names the edition read as `edition:
+<language>, <publisher>, <year>`, so whoever quotes it cites the edition
+actually read. A repository item holding several files can serve a
+translation first: on 2026-11-24 the first file of a WHO IRIS item was a
+Portuguese edition published in 2011, not the 2008 English original.
+
 - A **mismatch** ends that candidate: it goes under `tried` with the
   note `title mismatch` and the title seen, its file is not kept as the
   work's copy, and the next candidate in the order is tried.
@@ -192,12 +209,23 @@ and `tried` keeps every attempt:
    for `%PDF` like any other copy; text it returns is saved as `.html`
    or `.md` with `form: "html"` and a note that it is the tool's
    rendering, not the served bytes.
+   A fetch capability that answers through a model can cap each verbatim
+   quotation at a short length (near 125 characters on 2026-11-13 and
+   2026-11-24, reading compiled statutes on Planalto, the federal statute
+   portal, which refused curl): a long passage is read in consecutive
+   short quotations, each asked for by the opening words of the next
+   part, and the note says the text was assembled that way.
 3. **`browser`**: whatever browser automation capability the
    environment offers, found at run time (agent-browser is one example),
    only when the first two failed. It opens the one known document URL
    and saves what that URL serves; it never follows links, searches the
    site or crawls. When no such capability exists, the input ends with
    `none: no route` and the URL stays in the reply for a person to fetch.
+   When the first two routes both failed to connect at all (curl with no
+   HTTP status, the web fetch refused), the browser is not tried, since
+   it reaches the host from the same network address as curl: the input
+   ends with `none: host refused connections`, and the reply names the
+   host so the document can be fetched in a later session.
    When the URL renders a document viewer in place of the file, take the
    **viewer** path in [references/manifest.md](references/manifest.md).
 

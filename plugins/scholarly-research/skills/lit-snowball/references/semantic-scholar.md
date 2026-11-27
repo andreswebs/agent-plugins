@@ -32,6 +32,14 @@ DOIs go raw, slashes included. Without `fields` only `paperId` and
 `title` come back. A 404 means the paper is unknown. A 429 body is
 `{"message": "...", "code": "429"}`.
 
+Seeds are looked up by identifier only. A title match
+(`paper/search/match`) for a document with no DOI can land on a work
+that names the document in its own title: on 2026-11-11 the titles of
+two guidance documents matched a later article analysing one
+(`citationCount` 304) and a commentary on the other, whose counts would
+have stood in for the documents' own. A match is the document only when
+its title is the document's own title, not one that quotes it.
+
 ## Forward and backward, with contexts
 
 ```bash

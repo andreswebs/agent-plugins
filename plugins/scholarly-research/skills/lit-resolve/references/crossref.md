@@ -41,6 +41,13 @@ jq '.message | {DOI, type, title: .title[0], venue: ."container-title"[0],
   and drop the tags before the value goes into a record.
 - Books come with `type` `monograph` or `edited-book` as well as `book`
   (10.7758/9781610448789 and 10.4159/9780674981423 on 2026-11-24).
+- A chapter DOI can carry its container's title: on 2026-11-24 Crossref
+  gave 10.1787/ccb0b123-en the title of the whole report, while OpenAlex
+  held it as a chapter with its own title and an abstract that fit that
+  title. When Crossref's `title` for a DOI is the title of the work it
+  belongs to and OpenAlex gives a different title whose abstract matches
+  it, the record takes OpenAlex's title, the container's title goes to
+  `venue`, and `notes` keeps `crossref title: <title>`.
 
 ## Match a title or citation
 

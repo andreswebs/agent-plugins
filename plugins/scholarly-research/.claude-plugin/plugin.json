@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "scholarly-research",
   "displayName": "Scholarly Research",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Skills for reproducible literature work: resolve references, search scholarly databases, snowball citations, harvest collections over OAI-PMH, fetch legal open-access full texts and file records into Zotero, with every query logged",
   "author": {
     "name": "Andre Silva",

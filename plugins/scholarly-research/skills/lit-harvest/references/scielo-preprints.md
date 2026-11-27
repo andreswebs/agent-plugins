@@ -3,7 +3,9 @@
 Base `https://preprints.scielo.org/index.php/scielo/oai`; Open Preprint
 Systems 3.4.8.0, open, complete, Dublin Core only. No rate limit is
 documented or observed and no headers announce one: one request at a
-time with a short pause between pages, `--max-time 60`. The REST API under
+time with a short pause between pages, `--max-time 60`. Leave a second
+between requests, since the host dropped connections under rapid requests
+during verification. The REST API under
 `/api/v1/` answers 403 to every route without a per-account token and is
 never used here; OAI-PMH is the whole machine interface.
 

@@ -33,6 +33,13 @@ host did not answer from the guide's network, and the sizes (2024:
 headers. The Catalogo de Escolas is an Oracle BI dashboard with no stable
 query URL; the microdata is the only reproducible route.
 
+On 2026-11-24 the download host served the 2025 zip (537 MB, HTTP 200,
+one request, about four minutes) and minutes later refused connections
+to curl and to a web-fetch capability, so a report wanted from the same
+host went unread; whether the download caused the refusal is not known.
+Fetch any document needed from `download.inep.gov.br` before a large
+file from it, or in another session.
+
 ## Verified
 
 2026-10-17: dados.gov.br contract read and `401` observed; INEP links

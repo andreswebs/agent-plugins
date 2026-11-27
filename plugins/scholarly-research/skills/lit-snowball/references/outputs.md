@@ -37,6 +37,12 @@ line and later ones only add to `found_by`.
 
 - `language` comes from OpenAlex only; OpenCitations and Semantic Scholar
   give none, so a candidate they alone reached carries `null`.
+- No service in the walk filters by language, and Semantic Scholar has
+  no language field or filter at all, so a language restriction is
+  applied to the candidates file after the walk, never by dropping a
+  service's results during it. A candidate with `language: null` and a
+  DOI takes its language from the free OpenAlex lookup by DOI when
+  OpenAlex holds it; one with neither stays `null` for a person to judge.
 - `depth` is the depth at which the work was first reached; `via_seed`
   the seed of that first edge.
 - `notes` holds free text: a merged id, an `omid:` only row resolved

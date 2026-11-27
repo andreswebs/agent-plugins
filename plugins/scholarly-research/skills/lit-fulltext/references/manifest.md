@@ -81,6 +81,8 @@ Field rules:
   read from the file (JATS `article-id` types, `xml:lang`) when the
   source's `version` does not settle it. `language` is the file's
   language when it can be read (`xml:lang`), else the record's.
+  For a PDF, the language of its title page counts as read, so a
+  translated edition carries its own language, not the record's.
 - `reuse` is `license` when a license was stated, `read-only` when none
   was or the copy reserves its rights (`license: null`), and `link-only` for an arXiv copy. It describes
   the copy kept; a copy is kept whatever its value.
@@ -110,6 +112,10 @@ Field rules:
   2026-11-24 the open-access location announced for a 2024 book chapter
   served a discussion paper, a different work, as a PDF that passed the
   `%PDF` check and classified as `text`.
+  When the record lists people as authors, a candidate whose title
+  matches but whose page names none of them is handled the same way,
+  with the note `author mismatch: <names seen>`. A record whose author is
+  an organisation, or that has no author, keeps the title check alone.
 - `via` is `viewer` when the copy came through the viewer path below,
   else `null`.
 - `source_updated` is the record timestamp the winning source carries

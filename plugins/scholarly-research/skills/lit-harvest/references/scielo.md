@@ -2,7 +2,8 @@
 
 Base `https://oai.scielo.org/request`; keyless, OAI-PMH 2.0, no limit
 published and no rate-limit headers returned. One request at a time,
-`--max-time 60`. The scielo.br CDN dropped connections for about ten minutes
+`--max-time 60`. Leave a second between requests, since the host dropped
+connections under rapid requests during verification. The scielo.br CDN dropped connections for about ten minutes
 during the probe and then recovered, so on a timeout or a `000` status
 wait a minute before treating the host as down. The documented bulk file
 `articles.json.zip` at `static.scielo.org` is now a 964-byte HTML page, so

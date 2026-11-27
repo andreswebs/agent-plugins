@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "brazil-public-data",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Skills for Brazilian public data: municipal statistics from IBGE and municipal official gazettes from Querido Diário, with every request logged",
   "author": {
     "name": "Andre Silva",

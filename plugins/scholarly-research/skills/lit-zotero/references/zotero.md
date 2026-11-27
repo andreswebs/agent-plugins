@@ -89,6 +89,13 @@ the listing once: `database: "zotero"`, `interface: "api"`, `query`
 `collections/<key>/items/top` or `items/top`, `hits` from `Total-Results`,
 `kept` the number of index lines.
 
+Items in the trash are left out of the listing as well (observed during
+verification), so the index does not see them: a work whose only item is
+in the trash is created again when its record is filed. An item trashed
+as a duplicate on purpose needs nothing more, since its kept copy stays
+listed; an item meant to be reused is restored from the trash before the
+records are filed.
+
 Build the index, one line per item:
 
 ```bash

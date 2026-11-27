@@ -58,6 +58,14 @@ EOF
 Empty output means no abstract. A few abstracts carry trailing non-abstract
 text.
 
+Read the rebuilt text before it goes into `abstract`. For a one-page
+letter (10.1590/s0101-60832011000600010, 2026-11-24) the field held the
+author line, and for another work (W2883388022, the same day) garbled
+text. A text that is an author or affiliation line, or that does not
+read as an abstract, is none: `abstract` is `null`, `abstract_at` is set
+as for a work OpenAlex gave no abstract, `notes` keeps `openalex abstract
+not used: <first words>`, and the work is read from the document itself.
+
 ## Title search (10 credits; only when Crossref found nothing)
 
 ```bash
